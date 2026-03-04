@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MemType — Typing Practice Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --bg:           #0c0d10;
+      --surface:      #13151a;
+      --surface2:     #1c1f27;
+      --border:       #252830;
+      --border2:      #2f3340;
+      --accent:       #00e5ff;
+      --accent2:      #7c3aed;
+      --accent-dim:   rgba(0,229,255,0.12);
+      --accent-glow:  rgba(0,229,255,0.35);
+      --accent2-dim:  rgba(124,58,237,0.14);
+      --accent2-glow: rgba(124,58,237,0.4);
+      --warn:         #ff4d6d;
+      --ok:           #00e676;
+      --text:         #e2e4ec;
+      --muted:        #5a5f72;
+      --muted2:       #3a3e4d;
+      --mono:         'JetBrains Mono', 'Courier New', monospace;
+      --sans:         'Syne', sans-serif;
+      --radius:       10px;
+      --radius-lg:    16px;
+      --fs-editor:    14px; /* controlled by font slider */
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Scanline overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ============================================================
+       HEADER
+    ============================================================ */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 58px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,15,20,0.92);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      flex-shrink: 0;
+    }
+
+    /* Logo */
+    .logo {
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .logo-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { transform:scale(1); opacity:1; }
+      50%      { transform:scale(1.5); opacity:0.5; }
+    }
+
+    /* Page Nav Tabs — centred in header */
+    .page-nav {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 3px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px;
+    }
+    .page-tab {
+      padding: 6px 20px;
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.22s ease;
+      white-space: nowrap;
+    }
+    .page-tab.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid rgba(0,229,255,0.25);
+      box-shadow: 0 0 12px rgba(0,229,255,0.08);
+    }
+    .page-tab[data-page="fill"].active {
+      background: var(--accent2-dim);
+      color: #a78bfa;
+      border: 1px solid rgba(124,58,237,0.3);
+      box-shadow: 0 0 12px rgba(124,58,237,0.12);
+    }
+
+    /* Header right — stats + reset */
+    .header-right {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+    }
+    .stat-chip .stat-val { color: var(--accent); font-weight: 700; }
+    .stat-chip.fill-stat .stat-val { color: #a78bfa; }
+
+    .btn-reset {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.04em;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .btn-reset:hover { border-color: var(--warn); color: var(--warn); background: rgba(255,77,109,0.08); }
+
+    /* ============================================================
+       PAGE CONTAINERS — shown/hidden
+    ============================================================ */
+    .page { display: none; flex: 1; flex-direction: column; }
+    .page.active { display: flex; }
+
+    /* ============================================================
+       SHARED: MAIN WRAPPER
+    ============================================================ */
+    .main-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px 28px;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      gap: 18px;
+    }
+
+    /* ============================================================
+       SHARED: CONTROLS BAR
+    ============================================================ */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 7px 14px;
+    }
+    .control-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .slider-wrap { display: flex; align-items: center; gap: 8px; }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 120px; height: 4px;
+      border-radius: 2px;
+      background: var(--border2);
+      outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 7px var(--accent-glow);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+    .slider-val {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      min-width: 34px; text-align: right;
+    }
+    /* Violet slider variant (Fill Mode) */
+    .violet-slider::-webkit-slider-thumb {
+      background: #a78bfa !important;
+      box-shadow: 0 0 7px var(--accent2-glow) !important;
+    }
+    .violet-val { color: #a78bfa !important; }
+
+    /* Toggle switch */
+    .toggle { position: relative; width: 34px; height: 19px; }
+    .toggle input { display: none; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--border2);
+      border-radius: 20px; cursor: pointer;
+      transition: background 0.3s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      left: 3px; top: 3px;
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: transform 0.3s, background 0.3s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--accent-dim); border: 1px solid var(--accent); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(15px); background: var(--accent); box-shadow: 0 0 5px var(--accent-glow); }
+    /* Violet toggle variant */
+    .toggle-violet input:checked + .toggle-slider { background: var(--accent2-dim); border: 1px solid #a78bfa; }
+    .toggle-violet input:checked + .toggle-slider::before { background: #a78bfa; box-shadow: 0 0 5px var(--accent2-glow); }
+
+    /* Mode sub-tabs */
+    .mode-tabs { display: flex; gap: 3px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; }
+    .mode-tab {
+      padding: 5px 13px; border-radius: 6px;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      cursor: pointer; border: none; background: transparent;
+      color: var(--muted); transition: all 0.2s;
+    }
+    .mode-tab.active { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,229,255,0.28); }
+    .spacer { flex: 1; }
+
+    /* ============================================================
+       SHARED: PANEL
+    ============================================================ */
+    .panel {
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .panel:focus-within { border-color: var(--border2); box-shadow: 0 0 0 1px rgba(0,229,255,0.07); }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+      flex-shrink: 0;
+    }
+    .panel-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-cyan   { background: var(--accent);  box-shadow: 0 0 6px var(--accent-glow); }
+    .dot-violet { background: #a78bfa; box-shadow: 0 0 6px var(--accent2-glow); }
+    .dot-ok     { background: var(--ok); box-shadow: 0 0 6px rgba(0,230,118,0.5); }
+    .dot-warn   { background: var(--warn); box-shadow: 0 0 6px rgba(255,77,109,0.5); }
+
+    .panel-meta { font-family: var(--mono); font-size: 0.67rem; color: var(--muted2); }
+
+    .accuracy-chip {
+      font-size: 0.68rem; font-family: var(--mono);
+      padding: 2px 8px; border-radius: 12px; font-weight: 700;
+      background: rgba(0,230,118,0.1); color: var(--ok);
+      transition: all 0.3s;
+    }
+    .accuracy-chip.warn { background: rgba(255,77,109,0.1); color: var(--warn); }
+
+    /* Progress bar */
+    .progress-bar-wrap { height: 3px; background: var(--border); flex-shrink: 0; }
+    #progress-bar, #fm-progress-bar {
+      height: 100%; width: 0%;
+      border-radius: 0 2px 2px 0;
+      transition: width 0.3s ease;
+    }
+    #progress-bar { background: linear-gradient(90deg, var(--accent2), var(--accent)); box-shadow: 0 0 7px var(--accent-glow); }
+    #fm-progress-bar { background: linear-gradient(90deg, #7c3aed, #a78bfa); box-shadow: 0 0 7px var(--accent2-glow); }
+
+    .panel-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--surface2);
+      font-family: var(--mono);
+      font-size: 0.67rem; color: var(--muted2);
+      flex-shrink: 0;
+    }
+
+    /* Shared textarea style */
+    .editor-ta {
+      flex: 1; width: 100%; padding: 16px 20px;
+      background: transparent; border: none; outline: none;
+      resize: none;
+      font-family: var(--mono);
+      font-size: var(--fs-editor);
+      line-height: 1.78;
+      color: var(--text);
+      caret-color: var(--accent);
+      tab-size: 2;
+    }
+    .editor-ta::placeholder { color: var(--muted2); font-style: italic; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+    /* ============================================================
+       PAGE 1 — PRACTICE EDITOR
+    ============================================================ */
+    #page-editor .editor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Reference panel */
+    #ref-textarea { flex: 1; }
+    .ref-display-wrap { flex: 1; position: relative; overflow: hidden; }
+    #ref-display {
+      position: absolute; inset: 0;
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: var(--fs-editor);
+      line-height: 1.78;
+      color: #c8cdd8;
+      white-space: pre-wrap; word-break: break-word;
+      overflow-y: auto;
+      opacity: 0.15;
+      filter: blur(0px);
+      transition: opacity 0.4s ease, filter 0.4s ease;
+      pointer-events: none; user-select: none;
+    }
+
+    /* Typing panel */
+    .typing-wrap { flex: 1; position: relative; overflow: hidden; }
+    #diff-overlay {
+      position: absolute; inset: 0;
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: var(--fs-editor);
+      line-height: 1.78;
+      white-space: pre-wrap; word-break: break-word;
+      overflow: hidden;
+      pointer-events: none; user-select: none;
+      z-index: 2; color: transparent;
+    }
+    #typing-area {
+      position: absolute; inset: 0; z-index: 3;
+      width: 100%; height: 100%;
+      padding: 16px 20px;
+      background: transparent; border: none; outline: none; resize: none;
+      font-family: var(--mono);
+      font-size: var(--fs-editor);
+      line-height: 1.78;
+      color: var(--text);
+      caret-color: var(--accent);
+      tab-size: 2;
+    }
+    #typing-area::placeholder { color: var(--muted2); font-style: italic; }
+    .diff-correct { background: rgba(0,230,118,0.11); }
+    .diff-wrong   { background: rgba(255,77,109,0.22); }
+
+    /* ============================================================
+       PAGE 2 — FILL MODE
+    ============================================================ */
+
+    /* Two-row layout: paste area on top, fill editor below */
+    #page-fill .fill-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Paste area — collapsible top panel */
+    .paste-panel-wrap {
+      flex-shrink: 0;
+      transition: all 0.35s ease;
+    }
+    .paste-panel-wrap.collapsed .paste-body { display: none; }
+    .paste-panel-wrap .paste-body {
+      height: 160px;
+      display: flex;
+      flex-direction: column;
+    }
+    #fm-ref-textarea {
+      flex: 1;
+      font-size: var(--fs-editor);
+    }
+
+    /* Collapse toggle button */
+    .collapse-btn {
+      background: transparent; border: none; cursor: pointer;
+      color: var(--muted); font-family: var(--mono);
+      font-size: 0.68rem;
+      display: flex; align-items: center; gap: 5px;
+      padding: 2px 6px; border-radius: 5px;
+      transition: color 0.2s;
+    }
+    .collapse-btn:hover { color: var(--accent); }
+    .collapse-icon { transition: transform 0.3s; display: inline-block; }
+    .collapsed .collapse-icon { transform: rotate(-90deg); }
+
+    /* ===== FILL EDITOR — the core feature ===== */
+    .fill-editor-panel { flex: 1; min-height: 0; }
+
+    .fill-editor-body {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /*
+      Ghost layer — the faded reference text rendered char-by-char
+      so typed characters can selectively vanish.
+      This sits BEHIND the typed text.
+    */
+    #fm-ghost-layer {
+      position: absolute; inset: 0;
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: var(--fs-editor);
+      line-height: 1.78;
+      white-space: pre-wrap; word-break: break-word;
+      overflow: hidden;          /* synced with textarea scroll */
+      pointer-events: none; user-select: none;
+      z-index: 1;
+    }
+
+    /* Each ghost character span */
+    .gc {
+      display: inline;
+      color: #8ab0bb;            /* dim cyan-grey */
+      opacity: 1;
+      transition: opacity 0.25s ease, color 0.2s ease;
+    }
+    /* Newline placeholder — must maintain line height */
+    .gc-nl { display: block; height: 1.78em; }
+    /* Already correctly typed — fade out */
+    .gc.typed-ok { opacity: 0; }
+    /* Wrong character typed — flash red briefly */
+    .gc.typed-wrong {
+      color: var(--warn) !important;
+      opacity: 1 !important;
+      animation: flash-wrong 0.35s ease forwards;
+    }
+    @keyframes flash-wrong {
+      0%   { opacity:1; color: var(--warn); }
+      60%  { opacity:0.8; }
+      100% { opacity:1; color: #8ab0bb; }
+    }
+
+    /* Typed text layer — the actual textarea */
+    #fm-typing-area {
+      position: absolute; inset: 0; z-index: 3;
+      width: 100%; height: 100%;
+      padding: 16px 20px;
+      background: transparent; border: none; outline: none; resize: none;
+      font-family: var(--mono);
+      font-size: var(--fs-editor);
+      line-height: 1.78;
+      color: #e2e4ec;
+      caret-color: #a78bfa;
+      tab-size: 2;
+      /* Make the textarea text transparent so we see the ghost layer beneath
+         but keep caret visible via caret-color */
+      color: rgba(230,232,242,0.92);
+    }
+    #fm-typing-area::placeholder { color: var(--muted2); font-style: italic; }
+
+    /* ============================================================
+       FILL MODE — ANIMATED PROGRESS RING in panel header
+    ============================================================ */
+    .ring-wrap {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .ring {
+      width: 28px; height: 28px;
+      transform: rotate(-90deg);
+    }
+    .ring-bg { fill: none; stroke: var(--border2); stroke-width: 3; }
+    .ring-fill {
+      fill: none;
+      stroke: #a78bfa;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 75.4;   /* 2π × r(12) */
+      stroke-dashoffset: 75.4;
+      transition: stroke-dashoffset 0.4s ease;
+      filter: drop-shadow(0 0 3px var(--accent2-glow));
+    }
+    .ring-label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: #a78bfa;
+      font-weight: 700;
+    }
+
+    /* ============================================================
+       STATUS BAR (shared)
+    ============================================================ */
+    .status-bar {
+      display: flex; align-items: center; justify-content: center;
+      gap: 28px; padding: 8px 32px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      font-family: var(--mono); font-size: 0.7rem;
+      color: var(--muted); flex-shrink: 0;
+    }
+    .status-item { display: flex; align-items: center; gap: 5px; }
+    .key {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 4px; padding: 1px 6px;
+      font-size: 0.63rem; color: var(--muted);
+    }
+
+    /* ============================================================
+       PAGE ENTER ANIMATION
+    ============================================================ */
+    @keyframes pageIn {
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .page.active > .main-wrap { animation: pageIn 0.38s ease both; }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 960px) {
+      #page-editor .editor-grid { grid-template-columns: 1fr; }
+      .panel { min-height: 260px; }
+      header { padding: 0 18px; }
+      .main-wrap { padding: 16px 18px 20px; }
+      .page-nav { position: static; transform: none; order: 3; width: 100%; justify-content: center; }
+      header { flex-wrap: wrap; height: auto; padding: 10px 18px; gap: 10px; }
+    }
+    @media (max-width: 620px) {
+      .stat-chip { display: none; }
+      .controls-bar { gap: 8px; }
+      input[type="range"] { width: 90px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER (shared across both pages)
+============================================================ -->
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    MemType
+  </div>
+
+  <!-- Centred page navigation -->
+  <nav class="page-nav" aria-label="Mode navigation">
+    <button class="page-tab active" data-page="editor">Practice Editor</button>
+    <button class="page-tab" data-page="fill">Fill Mode</button>
+  </nav>
+
+  <!-- Stats + reset — content swaps per active page -->
+  <div class="header-right">
+    <!-- Editor page stats -->
+    <div id="hdr-editor-stats" style="display:flex;gap:12px;align-items:center;">
+      <div class="stat-chip">Words <span class="stat-val" id="hdr-words">0</span></div>
+      <div class="stat-chip">Progress <span class="stat-val" id="hdr-progress">0%</span></div>
+      <div class="stat-chip">Accuracy <span class="stat-val" id="hdr-accuracy">—</span></div>
+    </div>
+    <!-- Fill mode stats -->
+    <div id="hdr-fill-stats" style="display:none;gap:12px;align-items:center;">
+      <div class="stat-chip fill-stat">Progress <span class="stat-val" id="fm-hdr-progress">0%</span></div>
+      <div class="stat-chip fill-stat">Accuracy <span class="stat-val" id="fm-hdr-accuracy">—</span></div>
+    </div>
+    <button class="btn-reset" id="btn-reset">⟳ Reset</button>
+  </div>
+</header>
+
+<!-- ============================================================
+     PAGE 1 — PRACTICE EDITOR
+============================================================ -->
+<div class="page active" id="page-editor">
+  <div class="main-wrap">
+
+    <!-- Controls -->
+    <div class="controls-bar">
+      <div class="control-group">
+        <span class="control-label">Ghost</span>
+        <div class="slider-wrap">
+          <input type="range" id="opacity-slider" min="0" max="100" value="15"/>
+          <span class="slider-val" id="opacity-val">15%</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Blur</span>
+        <label class="toggle"><input type="checkbox" id="blur-toggle"/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Diff</span>
+        <label class="toggle"><input type="checkbox" id="diff-toggle" checked/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Size</span>
+        <div class="slider-wrap">
+          <input type="range" id="font-slider" min="11" max="22" value="14"/>
+          <span class="slider-val" id="font-val">14px</span>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-edit">Edit</button>
+        <button class="mode-tab" id="tab-ghost">Ghost</button>
+      </div>
+    </div>
+
+    <!-- Editor grid -->
+    <div class="editor-grid">
+
+      <!-- Reference panel -->
+      <div class="panel" id="left-panel" style="display:flex;flex-direction:column;">
+        <div class="panel-header">
+          <div class="panel-title"><span class="dot dot-cyan"></span>Reference</div>
+          <span class="panel-meta" id="ref-meta">0 chars · 0 lines</span>
+        </div>
+        <textarea id="ref-textarea" class="editor-ta"
+          placeholder="Paste your reference text or code here…&#10;&#10;Switch to 'Ghost' mode above to see the faded display."
+          spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
+        <!-- Ghost display (hidden until Ghost tab clicked) -->
+        <div class="ref-display-wrap" id="ref-display-wrap" style="display:none;">
+          <div id="ref-display"></div>
+        </div>
+        <div class="panel-footer">
+          <span id="ref-footer-left">Ln 1, Col 1</span>
+          <span>REFERENCE</span>
+        </div>
+      </div>
+
+      <!-- Typing panel -->
+      <div class="panel" style="display:flex;flex-direction:column;">
+        <div class="panel-header">
+          <div class="panel-title"><span class="dot dot-violet"></span>Typing Area</div>
+          <span class="accuracy-chip" id="accuracy-chip">—</span>
+        </div>
+        <div class="progress-bar-wrap"><div id="progress-bar"></div></div>
+        <div class="typing-wrap">
+          <div id="diff-overlay" aria-hidden="true"></div>
+          <textarea id="typing-area"
+            placeholder="Start typing here…"
+            spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+        <div class="panel-footer">
+          <span id="type-footer-left">Ln 1, Col 1</span>
+          <span id="type-footer-right">0 / 0 chars</span>
+        </div>
+      </div>
+
+    </div><!-- /editor-grid -->
+  </div><!-- /main-wrap -->
+</div><!-- /page-editor -->
+
+<!-- ============================================================
+     PAGE 2 — FILL MODE
+============================================================ -->
+<div class="page" id="page-fill">
+  <div class="main-wrap">
+
+    <!-- Fill Mode Controls -->
+    <div class="controls-bar">
+      <div class="control-group">
+        <span class="control-label">Ghost</span>
+        <div class="slider-wrap">
+          <input type="range" id="fm-opacity-slider" class="violet-slider" min="0" max="100" value="20"/>
+          <span class="slider-val violet-val" id="fm-opacity-val">20%</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Blur</span>
+        <label class="toggle toggle-violet"><input type="checkbox" id="fm-blur-toggle"/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Vanish</span>
+        <!-- Vanish mode: typed-correct chars disappear from ghost -->
+        <label class="toggle toggle-violet"><input type="checkbox" id="fm-vanish-toggle" checked/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Size</span>
+        <div class="slider-wrap">
+          <input type="range" id="fm-font-slider" class="violet-slider" min="11" max="22" value="14"/>
+          <span class="slider-val violet-val" id="fm-font-val">14px</span>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <!-- Hint badge -->
+      <div class="control-group" style="border-color:rgba(124,58,237,0.25);background:var(--accent2-dim);">
+        <span style="font-size:0.7rem;color:#a78bfa;font-family:var(--mono);letter-spacing:0.05em;">TYPE OVER THE GHOST</span>
+      </div>
+    </div>
+
+    <!-- Fill layout: paste top + fill editor bottom -->
+    <div class="fill-layout">
+
+      <!-- Paste reference panel -->
+      <div class="paste-panel-wrap" id="fm-paste-wrap">
+        <div class="panel" style="display:flex;flex-direction:column;">
+          <div class="panel-header">
+            <div class="panel-title"><span class="dot dot-cyan"></span>Reference Text</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="panel-meta" id="fm-ref-meta">0 chars</span>
+              <button class="collapse-btn" id="fm-collapse-btn">
+                <span class="collapse-icon">▾</span> collapse
+              </button>
+            </div>
+          </div>
+          <div class="paste-body">
+            <textarea id="fm-ref-textarea" class="editor-ta"
+              placeholder="Paste your reference text here, then click 'Load into Fill Editor' below…"
+              spellcheck="false" autocorrect="off" autocapitalize="off"
+              style="font-size:13px;"></textarea>
+            <div style="padding:8px 16px;background:var(--surface2);border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;">
+              <button id="fm-load-btn" style="
+                background: var(--accent2-dim);
+                border: 1px solid rgba(124,58,237,0.35);
+                color: #a78bfa;
+                font-family: var(--sans);
+                font-size: 0.78rem;
+                font-weight: 700;
+                padding: 6px 18px;
+                border-radius: 8px;
+                cursor: pointer;
+                letter-spacing: 0.05em;
+                transition: all 0.2s;
+              ">⇩ Load into Fill Editor</button>
+              <span style="font-family:var(--mono);font-size:0.68rem;color:var(--muted2);">Loads text as ghost layer in the editor below</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILL EDITOR PANEL -->
+      <div class="panel fill-editor-panel" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="dot dot-violet"></span>
+            Fill Editor
+            <span style="font-family:var(--mono);font-size:0.62rem;color:var(--muted2);font-weight:400;margin-left:4px;">ghost + typing overlay</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <!-- Progress ring -->
+            <div class="ring-wrap">
+              <svg class="ring" viewBox="0 0 28 28">
+                <circle class="ring-bg" cx="14" cy="14" r="12"/>
+                <circle class="ring-fill" id="fm-ring-fill" cx="14" cy="14" r="12"/>
+              </svg>
+              <span class="ring-label" id="fm-ring-label">0%</span>
+            </div>
+            <span class="accuracy-chip" id="fm-accuracy-chip">—</span>
+          </div>
+        </div>
+        <div class="progress-bar-wrap"><div id="fm-progress-bar"></div></div>
+
+        <!-- Layered editor: ghost + textarea -->
+        <div class="fill-editor-body">
+          <!-- Layer 1: ghost character spans -->
+          <div id="fm-ghost-layer" aria-hidden="true"></div>
+          <!-- Layer 2: actual typing textarea (transparent bg, visible text) -->
+          <textarea id="fm-typing-area"
+            placeholder="Load reference text above, then start typing here…"
+            spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+
+        <div class="panel-footer">
+          <span id="fm-footer-left">Ln 1, Col 1</span>
+          <span id="fm-footer-right">0 / 0 chars</span>
+        </div>
+      </div>
+
+    </div><!-- /fill-layout -->
+  </div><!-- /main-wrap -->
+</div><!-- /page-fill -->
+
+<!-- ============================================================
+     STATUS BAR (shared)
+============================================================ -->
+<div class="status-bar">
+  <div class="status-item"><span class="key">Tab</span> Insert tab</div>
+  <div class="status-item"><span class="key">Ctrl+R</span> Reset</div>
+  <div class="status-item"><span class="key">Ctrl+G</span> Toggle Ghost</div>
+  <div class="status-item"><span class="key">Ctrl+B</span> Toggle Blur</div>
+  <div class="status-item"><span class="key">Ctrl+L</span> Load (Fill Mode)</div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+/* ============================================================
+   UTILITY HELPERS
+============================================================ */
+
+/** Escape a single char for safe innerHTML insertion */
+function escapeChar(c) {
+  return c
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/ /g, '\u00a0')   // non-breaking space preserves layout
+    .replace(/\t/g, '\u00a0\u00a0');
+}
+
+/** Get cursor line/col from a textarea */
+function getCursorPos(ta) {
+  const before = ta.value.slice(0, ta.selectionStart).split('\n');
+  return { line: before.length, col: before[before.length - 1].length + 1 };
+}
+
+/** Insert tab at cursor in a textarea */
+function insertTab(ta) {
+  const s = ta.selectionStart;
+  ta.value = ta.value.slice(0, s) + '\t' + ta.value.slice(ta.selectionEnd);
+  ta.selectionStart = ta.selectionEnd = s + 1;
+}
+
+/* ============================================================
+   PAGE NAVIGATION
+============================================================ */
+const pageTabs   = document.querySelectorAll('.page-tab');
+const pages      = document.querySelectorAll('.page');
+const hdrEditor  = document.getElementById('hdr-editor-stats');
+const hdrFill    = document.getElementById('hdr-fill-stats');
+
+let activePage = 'editor';
+
+pageTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.page;
+    if (target === activePage) return;
+    activePage = target;
+
+    pageTabs.forEach(t => t.classList.toggle('active', t.dataset.page === target));
+    pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + target));
+
+    // Swap header stats
+    hdrEditor.style.display = target === 'editor' ? 'flex' : 'none';
+    hdrFill.style.display   = target === 'fill'   ? 'flex' : 'none';
+  });
+});
+
+/* ============================================================
+   GLOBAL RESET BUTTON — delegates to active page
+============================================================ */
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (activePage === 'editor') editorReset();
+  else fillReset();
+});
+
+/* ============================================================
+   ╔══════════════════════════════════════════╗
+   ║   PAGE 1 — PRACTICE EDITOR LOGIC        ║
+   ╚══════════════════════════════════════════╝
+============================================================ */
+(function editorModule() {
+  /* --- DOM --- */
+  const refTextarea    = document.getElementById('ref-textarea');
+  const refDisplay     = document.getElementById('ref-display');
+  const refDisplayWrap = document.getElementById('ref-display-wrap');
+  const typingArea     = document.getElementById('typing-area');
+  const diffOverlay    = document.getElementById('diff-overlay');
+  const progressBar    = document.getElementById('progress-bar');
+  const opacitySlider  = document.getElementById('opacity-slider');
+  const opacityVal     = document.getElementById('opacity-val');
+  const blurToggle     = document.getElementById('blur-toggle');
+  const diffToggle     = document.getElementById('diff-toggle');
+  const fontSlider     = document.getElementById('font-slider');
+  const fontVal        = document.getElementById('font-val');
+  const tabEdit        = document.getElementById('tab-edit');
+  const tabGhost       = document.getElementById('tab-ghost');
+  const refMeta        = document.getElementById('ref-meta');
+  const refFooterLeft  = document.getElementById('ref-footer-left');
+  const typeFooterLeft = document.getElementById('type-footer-left');
+  const typeFooterRight= document.getElementById('type-footer-right');
+  const hdrWords       = document.getElementById('hdr-words');
+  const hdrProgress    = document.getElementById('hdr-progress');
+  const hdrAccuracy    = document.getElementById('hdr-accuracy');
+  const accuracyChip   = document.getElementById('accuracy-chip');
+
+  let isGhostMode = false;
+  let diffEnabled = true;
+
+  /* --- Opacity slider --- */
+  opacitySlider.addEventListener('input', () => {
+    opacityVal.textContent = opacitySlider.value + '%';
+    refDisplay.style.opacity = opacitySlider.value / 100;
+  });
+  refDisplay.style.opacity = opacitySlider.value / 100;
+
+  /* --- Blur toggle --- */
+  blurToggle.addEventListener('change', () => {
+    refDisplay.style.filter = blurToggle.checked ? 'blur(4px)' : 'blur(0)';
+  });
+
+  /* --- Diff toggle --- */
+  diffToggle.addEventListener('change', () => {
+    diffEnabled = diffToggle.checked;
+    diffEnabled ? updateDiff() : (diffOverlay.innerHTML = '');
+  });
+
+  /* --- Font size slider --- */
+  fontSlider.addEventListener('input', () => {
+    const sz = fontSlider.value + 'px';
+    fontVal.textContent = sz;
+    [refTextarea, refDisplay, diffOverlay, typingArea].forEach(el => el.style.fontSize = sz);
+  });
+
+  /* --- View tabs: Edit ↔ Ghost --- */
+  tabEdit.addEventListener('click',  () => switchView(false));
+  tabGhost.addEventListener('click', () => switchView(true));
+
+  function switchView(ghost) {
+    isGhostMode = ghost;
+    refTextarea.style.display    = ghost ? 'none' : '';
+    refDisplayWrap.style.display = ghost ? 'block' : 'none';
+    if (ghost) refDisplay.textContent = refTextarea.value;
+    tabGhost.classList.toggle('active', ghost);
+    tabEdit.classList.toggle('active', !ghost);
+  }
+
+  /* --- Reference textarea events --- */
+  refTextarea.addEventListener('input', () => {
+    updateRefMeta();
+    if (isGhostMode) refDisplay.textContent = refTextarea.value;
+    updateDiff();
+  });
+  refTextarea.addEventListener('keydown', e => {
+    if (e.key === 'Tab') { e.preventDefault(); insertTab(refTextarea); updateRefMeta(); }
+  });
+  refTextarea.addEventListener('keyup',  () => updateCursorRef());
+  refTextarea.addEventListener('click',  () => updateCursorRef());
+
+  function updateCursorRef() {
+    const { line, col } = getCursorPos(refTextarea);
+    refFooterLeft.textContent = `Ln ${line}, Col ${col}`;
+  }
+  function updateRefMeta() {
+    const t = refTextarea.value;
+    refMeta.textContent = `${t.length} chars · ${t === '' ? 0 : t.split('\n').length} lines`;
+    hdrWords.textContent = t.trim() === '' ? 0 : t.trim().split(/\s+/).length;
+  }
+
+  /* --- Typing area events --- */
+  typingArea.addEventListener('input', () => { updateDiff(); updateStats(); });
+  typingArea.addEventListener('keydown', e => {
+    if (e.key === 'Tab') { e.preventDefault(); insertTab(typingArea); updateDiff(); updateStats(); }
+  });
+  typingArea.addEventListener('keyup',  () => updateCursorType());
+  typingArea.addEventListener('click',  () => updateCursorType());
+  typingArea.addEventListener('scroll', () => { if (isGhostMode) refDisplay.scrollTop = typingArea.scrollTop; });
+
+  function updateCursorType() {
+    const { line, col } = getCursorPos(typingArea);
+    typeFooterLeft.textContent = `Ln ${line}, Col ${col}`;
+  }
+
+  /* --- Diff engine --- */
+  function updateDiff() {
+    if (!diffEnabled) { diffOverlay.innerHTML = ''; return; }
+    const ref = refTextarea.value, typed = typingArea.value;
+    if (!ref || !typed) { diffOverlay.innerHTML = ''; return; }
+
+    let html = '', correct = 0;
+    for (let i = 0; i < typed.length; i++) {
+      const tc = typed[i], rc = ref[i];
+      const esc = escapeChar(tc);
+      if (rc === undefined)  html += `<span class="diff-wrong">${esc}</span>`;
+      else if (tc === rc)  { html += `<span class="diff-correct">${esc}</span>`; correct++; }
+      else                   html += `<span class="diff-wrong">${esc}</span>`;
+    }
+    diffOverlay.innerHTML = html;
+
+    const len = typed.length;
+    const acc = len > 0 ? Math.round((correct / len) * 100) : 0;
+    const s = len > 0 ? acc + '%' : '—';
+    hdrAccuracy.textContent  = s;
+    accuracyChip.textContent = s;
+    accuracyChip.className = 'accuracy-chip' + (acc < 80 && len > 0 ? ' warn' : '');
+  }
+
+  /* --- Stats --- */
+  function updateStats() {
+    const rLen = refTextarea.value.length, tLen = typingArea.value.length;
+    const pct = rLen > 0 ? Math.min(100, Math.round((tLen / rLen) * 100)) : 0;
+    progressBar.style.width = pct + '%';
+    hdrProgress.textContent = pct + '%';
+    typeFooterRight.textContent = `${tLen} / ${rLen} chars`;
+    updateCursorType();
+  }
+
+  /* --- Reset (exposed on window for global btn) --- */
+  window.editorReset = function() {
+    if (!confirm('Reset both areas?')) return;
+    refTextarea.value = typingArea.value = '';
+    refDisplay.textContent = diffOverlay.innerHTML = '';
+    progressBar.style.width = '0%';
+    hdrWords.textContent = hdrProgress.textContent = '0';
+    hdrProgress.textContent = '0%';
+    hdrAccuracy.textContent = accuracyChip.textContent = '—';
+    accuracyChip.className = 'accuracy-chip';
+    refMeta.textContent = '0 chars · 0 lines';
+    typeFooterRight.textContent = '0 / 0 chars';
+    refFooterLeft.textContent = typeFooterLeft.textContent = 'Ln 1, Col 1';
+    if (isGhostMode) switchView(false);
+    refTextarea.focus();
+  };
+
+  /* --- Keyboard shortcuts for editor page --- */
+  document.addEventListener('keydown', e => {
+    if (activePage !== 'editor') return;
+    if (!(e.ctrlKey || e.metaKey)) return;
+    if (e.key === 'r' || e.key === 'R') { e.preventDefault(); editorReset(); }
+    if (e.key === 'g' || e.key === 'G') { e.preventDefault(); switchView(!isGhostMode); }
+    if (e.key === 'b' || e.key === 'B') {
+      e.preventDefault();
+      blurToggle.checked = !blurToggle.checked;
+      blurToggle.dispatchEvent(new Event('change'));
+    }
+  });
+})();
+
+/* ============================================================
+   ╔══════════════════════════════════════════╗
+   ║   PAGE 2 — FILL MODE LOGIC              ║
+   ╚══════════════════════════════════════════╝
+============================================================ */
+(function fillModule() {
+  /* --- DOM --- */
+  const fmRefTextarea  = document.getElementById('fm-ref-textarea');
+  const fmRefMeta      = document.getElementById('fm-ref-meta');
+  const fmLoadBtn      = document.getElementById('fm-load-btn');
+  const fmCollapseBtn  = document.getElementById('fm-collapse-btn');
+  const fmPasteWrap    = document.getElementById('fm-paste-wrap');
+  const fmGhostLayer   = document.getElementById('fm-ghost-layer');
+  const fmTypingArea   = document.getElementById('fm-typing-area');
+  const fmProgressBar  = document.getElementById('fm-progress-bar');
+  const fmRingFill     = document.getElementById('fm-ring-fill');
+  const fmRingLabel    = document.getElementById('fm-ring-label');
+  const fmAccuracyChip = document.getElementById('fm-accuracy-chip');
+  const fmHdrProgress  = document.getElementById('fm-hdr-progress');
+  const fmHdrAccuracy  = document.getElementById('fm-hdr-accuracy');
+  const fmFooterLeft   = document.getElementById('fm-footer-left');
+  const fmFooterRight  = document.getElementById('fm-footer-right');
+  const fmOpacitySlider= document.getElementById('fm-opacity-slider');
+  const fmOpacityVal   = document.getElementById('fm-opacity-val');
+  const fmBlurToggle   = document.getElementById('fm-blur-toggle');
+  const fmVanishToggle = document.getElementById('fm-vanish-toggle');
+  const fmFontSlider   = document.getElementById('fm-font-slider');
+  const fmFontVal      = document.getElementById('fm-font-val');
+
+  // Ghost circumference for SVG ring (r=12 → 2π×12 ≈ 75.4)
+  const RING_CIRC = 75.4;
+
+  let referenceText = '';     // loaded reference
+  let ghostSpans    = [];     // array of span elements for each char
+  let vanishEnabled = true;
+
+  /* ============================================================
+     OPACITY / BLUR CONTROLS
+  ============================================================ */
+  fmOpacitySlider.addEventListener('input', () => {
+    fmOpacityVal.textContent = fmOpacitySlider.value + '%';
+    fmGhostLayer.style.opacity = fmOpacitySlider.value / 100;
+  });
+  fmGhostLayer.style.opacity = fmOpacitySlider.value / 100;
+
+  fmBlurToggle.addEventListener('change', () => {
+    fmGhostLayer.style.filter = fmBlurToggle.checked ? 'blur(3px)' : 'blur(0)';
+  });
+
+  fmVanishToggle.addEventListener('change', () => {
+    vanishEnabled = fmVanishToggle.checked;
+    // Re-render ghost with current typed state
+    renderGhostState(fmTypingArea.value);
+  });
+
+  /* ============================================================
+     FONT SIZE
+  ============================================================ */
+  fmFontSlider.addEventListener('input', () => {
+    const sz = fmFontSlider.value + 'px';
+    fmFontVal.textContent = sz;
+    fmGhostLayer.style.fontSize  = sz;
+    fmTypingArea.style.fontSize  = sz;
+    fmRefTextarea.style.fontSize = sz;
+  });
+
+  /* ============================================================
+     REFERENCE TEXTAREA — meta update
+  ============================================================ */
+  fmRefTextarea.addEventListener('input', () => {
+    const t = fmRefTextarea.value;
+    fmRefMeta.textContent = `${t.length} chars`;
+  });
+
+  /* ============================================================
+     COLLAPSE TOGGLE for paste panel
+  ============================================================ */
+  fmCollapseBtn.addEventListener('click', () => {
+    fmPasteWrap.classList.toggle('collapsed');
+    const icon = fmCollapseBtn.querySelector('.collapse-icon');
+    fmCollapseBtn.childNodes[1].textContent = fmPasteWrap.classList.contains('collapsed') ? ' expand' : ' collapse';
+  });
+
+  /* ============================================================
+     LOAD BUTTON — parse reference text into ghost spans
+  ============================================================ */
+  fmLoadBtn.addEventListener('click', loadReference);
+
+  function loadReference() {
+    const raw = fmRefTextarea.value;
+    if (!raw.trim()) { alert('Please paste some reference text first.'); return; }
+    referenceText = raw;
+    fmTypingArea.value = '';
+    buildGhostLayer(raw);
+    fmTypingArea.focus();
+    // Collapse paste panel after loading
+    if (!fmPasteWrap.classList.contains('collapsed')) {
+      fmPasteWrap.classList.add('collapsed');
+      fmCollapseBtn.childNodes[1].textContent = ' expand';
+    }
+    updateFillStats('');
+  }
+
+  /* ============================================================
+     BUILD GHOST LAYER — one span per character
+     Newlines get a special block-level element.
+  ============================================================ */
+  function buildGhostLayer(text) {
+    fmGhostLayer.innerHTML = '';
+    ghostSpans = [];
+
+    // We use a DocumentFragment for performance
+    const frag = document.createDocumentFragment();
+
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '\n') {
+        // Newline: close current line visually
+        const nl = document.createElement('br');
+        nl.dataset.idx = i;
+        frag.appendChild(nl);
+        ghostSpans.push(nl);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'gc';
+        span.dataset.idx = i;
+        // Preserve spaces and tabs
+        span.textContent = ch === '\t' ? '\u00a0\u00a0' : ch;
+        frag.appendChild(span);
+        ghostSpans.push(span);
+      }
+    }
+
+    fmGhostLayer.appendChild(frag);
+  }
+
+  /* ============================================================
+     RENDER GHOST STATE — update span classes based on typed text
+  ============================================================ */
+  function renderGhostState(typed) {
+    const len = Math.min(typed.length, ghostSpans.length);
+
+    for (let i = 0; i < ghostSpans.length; i++) {
+      const el = ghostSpans[i];
+      if (el.tagName === 'BR') continue;  // newlines have no class state
+
+      if (i < typed.length) {
+        const tc = typed[i];
+        const rc = referenceText[i];
+        if (tc === rc) {
+          // Correct — vanish if enabled
+          if (vanishEnabled) {
+            el.classList.remove('typed-wrong');
+            el.classList.add('typed-ok');
+          } else {
+            el.classList.remove('typed-ok', 'typed-wrong');
+          }
+        } else {
+          // Wrong — flash red
+          el.classList.remove('typed-ok');
+          if (!el.classList.contains('typed-wrong')) {
+            el.classList.add('typed-wrong');
+            // Remove flash class after animation so it can re-trigger
+            setTimeout(() => el.classList.remove('typed-wrong'), 400);
+          }
+        }
+      } else {
+        // Not yet typed — restore ghost
+        el.classList.remove('typed-ok', 'typed-wrong');
+      }
+    }
+  }
+
+  /* ============================================================
+     TYPING AREA EVENTS
+  ============================================================ */
+  fmTypingArea.addEventListener('input', () => {
+    const typed = fmTypingArea.value;
+    renderGhostState(typed);
+    updateFillStats(typed);
+    syncScroll();
+  });
+
+  fmTypingArea.addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      insertTab(fmTypingArea);
+      renderGhostState(fmTypingArea.value);
+      updateFillStats(fmTypingArea.value);
+    }
+  });
+
+  fmTypingArea.addEventListener('keyup',   () => updateFillCursor());
+  fmTypingArea.addEventListener('click',   () => updateFillCursor());
+  fmTypingArea.addEventListener('scroll',  syncScroll);
+
+  function syncScroll() {
+    // Keep ghost layer scroll perfectly synced with textarea
+    fmGhostLayer.scrollTop  = fmTypingArea.scrollTop;
+    fmGhostLayer.scrollLeft = fmTypingArea.scrollLeft;
+  }
+
+  function updateFillCursor() {
+    const { line, col } = getCursorPos(fmTypingArea);
+    fmFooterLeft.textContent = `Ln ${line}, Col ${col}`;
+  }
+
+  /* ============================================================
+     FILL STATS — progress, accuracy, ring
+  ============================================================ */
+  function updateFillStats(typed) {
+    const refLen = referenceText.length;
+    const typedLen = typed.length;
+
+    // Progress
+    const pct = refLen > 0 ? Math.min(100, Math.round((typedLen / refLen) * 100)) : 0;
+    fmProgressBar.style.width = pct + '%';
+    fmHdrProgress.textContent = pct + '%';
+    fmFooterRight.textContent = `${typedLen} / ${refLen} chars`;
+
+    // Ring
+    const offset = RING_CIRC - (RING_CIRC * pct / 100);
+    fmRingFill.style.strokeDashoffset = offset;
+    fmRingLabel.textContent = pct + '%';
+
+    // Accuracy
+    if (typedLen === 0) {
+      fmAccuracyChip.textContent = fmHdrAccuracy.textContent = '—';
+      fmAccuracyChip.className = 'accuracy-chip';
+      return;
+    }
+    let correct = 0;
+    for (let i = 0; i < typedLen; i++) {
+      if (typed[i] === referenceText[i]) correct++;
+    }
+    const acc = Math.round((correct / typedLen) * 100);
+    const s = acc + '%';
+    fmAccuracyChip.textContent = fmHdrAccuracy.textContent = s;
+    fmAccuracyChip.className = 'accuracy-chip' + (acc < 80 ? ' warn' : '');
+
+    updateFillCursor();
+  }
+
+  /* ============================================================
+     RESET FILL MODE
+  ============================================================ */
+  window.fillReset = function() {
+    if (!confirm('Reset Fill Mode? This will clear typing and ghost layer.')) return;
+    referenceText = '';
+    ghostSpans = [];
+    fmGhostLayer.innerHTML = '';
+    fmRefTextarea.value = '';
+    fmTypingArea.value  = '';
+    fmProgressBar.style.width = '0%';
+    fmRingFill.style.strokeDashoffset = RING_CIRC;
+    fmRingLabel.textContent = '0%';
+    fmAccuracyChip.textContent = fmHdrAccuracy.textContent = '—';
+    fmHdrProgress.textContent = '0%';
+    fmAccuracyChip.className = 'accuracy-chip';
+    fmRefMeta.textContent = '0 chars';
+    fmFooterRight.textContent = '0 / 0 chars';
+    fmFooterLeft.textContent  = 'Ln 1, Col 1';
+    // Expand paste panel
+    fmPasteWrap.classList.remove('collapsed');
+    fmCollapseBtn.childNodes[1].textContent = ' collapse';
+    fmRefTextarea.focus();
+  };
+
+  /* ============================================================
+     KEYBOARD SHORTCUTS for Fill Mode
+  ============================================================ */
+  document.addEventListener('keydown', e => {
+    if (activePage !== 'fill') return;
+    if (!(e.ctrlKey || e.metaKey)) return;
+    if (e.key === 'r' || e.key === 'R') { e.preventDefault(); fillReset(); }
+    if (e.key === 'g' || e.key === 'G') {
+      e.preventDefault();
+      // Toggle ghost visibility (0% ↔ current saved value)
+      if (parseInt(fmOpacitySlider.value) > 0) {
+        fmOpacitySlider._savedVal = fmOpacitySlider.value;
+        fmOpacitySlider.value = 0;
+      } else {
+        fmOpacitySlider.value = fmOpacitySlider._savedVal || 20;
+      }
+      fmOpacitySlider.dispatchEvent(new Event('input'));
+    }
+    if (e.key === 'b' || e.key === 'B') {
+      e.preventDefault();
+      fmBlurToggle.checked = !fmBlurToggle.checked;
+      fmBlurToggle.dispatchEvent(new Event('change'));
+    }
+    if (e.key === 'l' || e.key === 'L') {
+      e.preventDefault();
+      loadReference();
+    }
+  });
+
+})(); // end fillModule
+</script>
+
+</body>
+</html>
