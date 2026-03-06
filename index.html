@@ -209,9 +209,9 @@
 
     .main-wrap {
       flex: 1; display: flex; flex-direction: column;
-      padding: 20px 28px 24px;
+      padding: 18px 24px 24px;
       max-width: 1800px; width: 100%; margin: 0 auto;
-      gap: 14px;
+      gap: 12px;
     }
 
     /* ============================================================
@@ -322,12 +322,12 @@
       transition: border-color 0.3s, box-shadow 0.3s, background var(--transition);
     }
     .panel:focus-within {
-      border-color: var(--border2);
-      box-shadow: 0 0 0 1px rgba(0,229,255,0.06), var(--shadow-md);
+      border-color: rgba(0,229,255,0.25);
+      box-shadow: 0 0 0 2px rgba(0,229,255,0.07), var(--shadow-md);
     }
     .panel-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 16px; border-bottom: 1px solid var(--border);
+      padding: 10px 18px; border-bottom: 1px solid var(--border);
       background: var(--surface2); flex-shrink: 0;
     }
     .panel-title {
@@ -355,23 +355,26 @@
 
     .panel-footer {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 5px 16px; border-top: 1px solid var(--border);
+      padding: 6px 18px; border-top: 1px solid var(--border);
       background: var(--surface2); font-family: var(--mono);
       font-size: 0.67rem; color: var(--muted2); flex-shrink: 0;
+      letter-spacing: 0.02em;
     }
 
     .editor-ta {
-      flex: 1; width: 100%; padding: 15px 18px;
+      flex: 1; width: 100%; padding: 18px 22px;
       background: transparent; border: none; outline: none; resize: none;
-      font-family: var(--mono); font-size: 14px; line-height: 1.78;
-      color: var(--text); caret-color: var(--accent); tab-size: 2;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.9;
+      color: var(--text); caret-color: var(--accent); tab-size: 4;
+      letter-spacing: 0.015em; word-spacing: 0.05em;
     }
-    .editor-ta::placeholder { color: var(--muted2); font-style: italic; }
+    .editor-ta::placeholder { color: var(--muted2); font-style: italic; font-size: 13px; }
 
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::selection { background: rgba(0,229,255,0.18); color: inherit; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted2); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
     /* ============================================================
        PAGE 1 — PRACTICE EDITOR
@@ -382,25 +385,28 @@
     }
     .ref-display-wrap { flex: 1; position: relative; overflow: hidden; }
     #ref-display {
-      position: absolute; inset: 0; padding: 15px 18px;
-      font-family: var(--mono); font-size: 14px; line-height: 1.78;
+      position: absolute; inset: 0; padding: 18px 22px;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.9;
       color: var(--text); white-space: pre-wrap; word-break: break-word;
       overflow-y: auto; opacity: 0.15; filter: blur(0);
+      letter-spacing: 0.015em;
       transition: opacity 0.4s, filter 0.4s;
       pointer-events: none; user-select: none;
     }
     .typing-wrap { flex: 1; position: relative; overflow: hidden; }
     #diff-overlay {
-      position: absolute; inset: 0; padding: 15px 18px;
-      font-family: var(--mono); font-size: 14px; line-height: 1.78;
+      position: absolute; inset: 0; padding: 18px 22px;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.9;
       white-space: pre-wrap; word-break: break-word; overflow: hidden;
+      letter-spacing: 0.015em;
       pointer-events: none; user-select: none; z-index: 2; color: transparent;
     }
     #typing-area {
       position: absolute; inset: 0; z-index: 3; width:100%; height:100%;
-      padding: 15px 18px; background: transparent; border: none; outline: none; resize: none;
-      font-family: var(--mono); font-size: 14px; line-height: 1.78;
-      color: var(--text); caret-color: var(--accent); tab-size: 2;
+      padding: 18px 22px; background: transparent; border: none; outline: none; resize: none;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.9;
+      color: var(--text); caret-color: var(--accent); tab-size: 4;
+      letter-spacing: 0.015em;
     }
     #typing-area::placeholder { color: var(--muted2); font-style: italic; }
     .diff-correct { background: rgba(0,230,118,0.13); }
@@ -425,8 +431,8 @@
     .fill-editor-panel { flex: 1; min-height: 0; }
     .fill-editor-body { flex: 1; position: relative; overflow: hidden; }
     #fm-ghost-layer {
-      position: absolute; inset: 0; padding: 15px 18px;
-      font-family: var(--mono); font-size: 14px; line-height: 1.78;
+      position: absolute; inset: 0; padding: 18px 22px;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.9; letter-spacing: 0.015em;
       white-space: pre-wrap; word-break: break-word; overflow: hidden;
       pointer-events: none; user-select: none; z-index: 1;
     }
@@ -437,8 +443,9 @@
     @keyframes flash-wrong { 0%{opacity:1;color:var(--warn)} 60%{opacity:0.8} 100%{opacity:1} }
     #fm-typing-area {
       position: absolute; inset: 0; z-index: 3; width:100%; height:100%;
-      padding: 15px 18px; background: transparent; border: none; outline: none; resize: none;
-      font-family: var(--mono); font-size: 14px; line-height: 1.78;
+      padding: 18px 22px; background: transparent; border: none; outline: none; resize: none;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.9; letter-spacing: 0.015em;
+      color: var(--text); caret-color: var(--accent); tab-size: 4;
       color: var(--text); caret-color: #a78bfa; tab-size: 2;
     }
     #fm-typing-area::placeholder { color: var(--muted2); font-style: italic; }
@@ -501,7 +508,7 @@
 
     .line-numbers {
       padding: 15px 0 15px 10px;
-      font-family: var(--mono); font-size: 13px; line-height: 1.78;
+      font-family: var(--mono); font-size: 13px; line-height: 1.85;
       color: var(--muted2); background: var(--bg);
       border-right: 1px solid var(--border);
       user-select: none; pointer-events: none;
@@ -513,8 +520,8 @@
     .cp-highlight-mirror {
       position: absolute;
       top: 0; left: 44px; right: 0; bottom: 0;
-      padding: 15px 18px;
-      font-family: var(--mono); font-size: 13px; line-height: 1.78;
+      padding: 16px 20px;
+      font-family: var(--mono); font-size: 13px; line-height: 1.85; letter-spacing: 0.012em;
       white-space: pre; overflow: hidden; tab-size: 2;
       pointer-events: none; user-select: none;
       z-index: 1;
@@ -524,9 +531,9 @@
     .cp-textarea {
       position: absolute;
       top: 0; left: 44px; right: 0; bottom: 0;
-      padding: 15px 18px;
+      padding: 16px 20px;
       background: transparent; border: none; outline: none; resize: none;
-      font-family: var(--mono); font-size: 13px; line-height: 1.78;
+      font-family: var(--mono); font-size: 13px; line-height: 1.85; letter-spacing: 0.012em;
       color: rgba(226,228,236,0.95); caret-color: #fb923c;
       tab-size: 2; white-space: pre; overflow: auto;
       z-index: 2;
@@ -685,8 +692,8 @@
     .cp-ghost-layer {
       position: absolute;
       top: 0; left: 44px; right: 0; bottom: 0;
-      padding: 15px 18px;
-      font-family: var(--mono); font-size: 13px; line-height: 1.78;
+      padding: 16px 20px;
+      font-family: var(--mono); font-size: 13px; line-height: 1.85; letter-spacing: 0.012em;
       white-space: pre; overflow: hidden; tab-size: 2;
       pointer-events: none; user-select: none;
       z-index: 1;
@@ -894,14 +901,15 @@
     ============================================================ */
     #code-tooltip {
       position: fixed;
-      z-index: 9000;
-      max-width: 320px;
-      min-width: 200px;
+      z-index: 9999;
+      max-width: 340px;
+      min-width: 180px;
       pointer-events: none;
       opacity: 0;
-      transform: translateY(6px) scale(0.97);
-      transition: opacity 0.15s ease, transform 0.15s ease;
+      transform: translateY(5px) scale(0.96);
+      transition: opacity 0.08s ease, transform 0.08s ease;
       font-family: var(--mono);
+      filter: drop-shadow(0 4px 20px rgba(0,0,0,0.4));
     }
     #code-tooltip.visible {
       opacity: 1;
@@ -909,19 +917,20 @@
     }
     .tooltip-inner {
       background: var(--surface);
-      border: 1px solid var(--border2);
+      border: 1px solid rgba(0,229,255,0.15);
       border-radius: 10px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
       overflow: hidden;
     }
     [data-theme="light"] .tooltip-inner {
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+      border: 1px solid rgba(0,120,200,0.2);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
     }
     .tooltip-header {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px 6px;
+      padding: 9px 14px 7px;
       border-bottom: 1px solid var(--border);
       background: var(--surface2);
     }
@@ -938,6 +947,7 @@
     .tooltip-kind-badge.css   { background: rgba(56,189,248,0.13); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); }
     .tooltip-kind-badge.js    { background: rgba(251,191,36,0.13); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
     .tooltip-kind-badge.kw    { background: rgba(167,139,250,0.14); color: #a78bfa; border: 1px solid rgba(167,139,250,0.25); }
+    .tooltip-kind-badge.ai    { background: rgba(34,197,94,0.13);  color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
     [data-theme="light"] .tooltip-kind-badge.html  { background: rgba(249,115,22,0.1);  color: #d9600a; }
     [data-theme="light"] .tooltip-kind-badge.css   { background: rgba(56,189,248,0.1);  color: #0284c7; }
     [data-theme="light"] .tooltip-kind-badge.js    { background: rgba(202,138,4,0.12);  color: #b45309; }
@@ -953,15 +963,17 @@
       white-space: nowrap;
     }
     .tooltip-body {
-      padding: 9px 12px 8px;
+      padding: 10px 14px 10px;
     }
     .tooltip-desc {
-      font-size: 0.72rem;
-      line-height: 1.55;
-      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.6;
+      color: var(--text);
       margin-bottom: 0;
+      font-family: var(--sans);
+      font-weight: 400;
     }
-    [data-theme="light"] .tooltip-desc { color: #4b5563; }
+    [data-theme="light"] .tooltip-desc { color: #374151; }
     .tooltip-example {
       margin-top: 7px;
       background: var(--bg);
@@ -991,8 +1003,9 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      padding: 4px 12px 6px;
+      padding: 5px 14px 6px;
       border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.08);
     }
     .tooltip-shortcut {
       font-size: 0.58rem;
@@ -2763,6 +2776,9 @@ tick(); setInterval(tick,1000);`
   let enabled      = true;
   let hideTimer    = null;
   let currentWord  = '';
+  let lastMouseX   = 0;
+  let lastMouseY   = 0;
+  document.addEventListener('mousemove', e => { lastMouseX = e.clientX; lastMouseY = e.clientY; }, { passive: true });
   const tooltip    = document.getElementById('code-tooltip');
   const ttBadge    = document.getElementById('tt-badge');
   const ttKeyword  = document.getElementById('tt-keyword');
@@ -2771,14 +2787,19 @@ tick(); setInterval(tick,1000);`
   const ttExWrap   = document.getElementById('tt-example-wrap');
   const toggleBtn  = document.getElementById('intellisense-toggle-btn');
 
+  /* ── Safety check ── */
+  if (!tooltip || !ttBadge || !ttKeyword || !ttDesc) {
+    console.error('IntelliSense: missing DOM elements, aborting.'); return;
+  }
+
   /* ── Toggle ── */
   function setEnabled(v) {
     enabled = v;
-    toggleBtn.classList.toggle('active', v);
+    if (toggleBtn) toggleBtn.classList.toggle('active', v);
     if (!v) hideTooltip(true);
     try { localStorage.setItem('memtype-intellisense', v ? '1' : '0'); } catch(e){}
   }
-  toggleBtn.addEventListener('click', () => setEnabled(!enabled));
+  if (toggleBtn) toggleBtn.addEventListener('click', () => setEnabled(!enabled));
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey||e.metaKey) && (e.key==='i'||e.key==='I') && !e.shiftKey) {
       e.preventDefault(); setEnabled(!enabled);
@@ -2981,37 +3002,42 @@ tick(); setInterval(tick,1000);`
   function showTooltip(entry, keyword, x, y) {
     if (!enabled || !entry) return;
 
-    ttBadge.textContent  = entry.badge;
-    ttBadge.className    = 'tooltip-kind-badge ' + entry.kind;
+    ttBadge.textContent   = entry.badge;
+    ttBadge.className     = 'tooltip-kind-badge ' + entry.kind;
     ttKeyword.textContent = keyword;
-    ttDesc.textContent   = entry.desc;
+    ttDesc.textContent    = entry.desc;
 
     if (entry.example) {
-      ttExample.textContent = entry.example;
+      ttExample.textContent  = entry.example;
       ttExWrap.style.display = 'block';
     } else {
       ttExWrap.style.display = 'none';
     }
 
-    /* Position tooltip: prefer above cursor, fall back to below */
-    tooltip.style.left = '-9999px';
-    tooltip.style.top  = '-9999px';
+    /* Show off-screen to measure size */
+    tooltip.style.left    = '-9999px';
+    tooltip.style.top     = '-9999px';
     tooltip.classList.add('visible');
 
     requestAnimationFrame(() => {
-      const tw = tooltip.offsetWidth;
-      const th = tooltip.offsetHeight;
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const GAP = 14;
+      const tw  = tooltip.offsetWidth  || 280;
+      const th  = tooltip.offsetHeight || 120;
+      const vw  = window.innerWidth;
+      const vh  = window.innerHeight;
+      const GAP = 10;
 
+      // Prefer above cursor
       let left = x - tw / 2;
       let top  = y - th - GAP;
 
-      // Keep within viewport
+      // Flip below if not enough room above
+      if (top < 8) top = y + GAP + 18;
+      // Clamp horizontal
       if (left < 8) left = 8;
       if (left + tw > vw - 8) left = vw - tw - 8;
-      if (top < 8) top = y + GAP + 16; // flip to below cursor
+      // Final vertical clamp
+      if (top + th > vh - 8) top = vh - th - 8;
+      if (top < 8) top = 8;
 
       tooltip.style.left = left + 'px';
       tooltip.style.top  = top  + 'px';
@@ -3052,76 +3078,116 @@ tick(); setInterval(tick,1000);`
     const end   = ta.selectionEnd;
     if (start === end) return null;
     const sel = ta.value.slice(start, end).trim();
-    if (sel.length < 2 || sel.includes('\n')) return null;
-    return sel;
+    if (sel.length < 2 || sel.length > 80) return null;
+    // Allow phrases but not huge blobs
+    return sel.replace(/\s+/g, ' ');
   }
 
-  /* ── Compute approximate caret pixel coordinates ── */
+  /* ── Compute caret pixel coordinates (reliable version) ── */
   function getCaretCoords(ta) {
-    // Create a mirror div to measure text dimensions
-    const mirror = document.createElement('div');
-    const style  = window.getComputedStyle(ta);
-    const props  = [
-      'fontFamily','fontSize','fontWeight','letterSpacing','lineHeight',
-      'paddingTop','paddingLeft','paddingRight','paddingBottom',
-      'borderTopWidth','borderLeftWidth','width','boxSizing','tabSize'
-    ];
-    props.forEach(p => { mirror.style[p] = style[p]; });
-    mirror.style.cssText += ';position:absolute;visibility:hidden;overflow:hidden;white-space:pre-wrap;word-break:break-word;pointer-events:none;';
-    if (ta.wrap === 'off') mirror.style.whiteSpace = 'pre';
+    const rect = ta.getBoundingClientRect();
+    const style = window.getComputedStyle(ta);
+    const lineH = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.4 || 20;
+    const padTop = parseFloat(style.paddingTop) || 0;
+    const padLeft = parseFloat(style.paddingLeft) || 0;
+    const fontSize = parseFloat(style.fontSize) || 14;
+    const charW = fontSize * 0.6; // approximate monospace char width
 
-    const caretPos = ta.selectionStart;
-    const before   = document.createTextNode(ta.value.slice(0, caretPos));
-    const marker   = document.createElement('span');
-    marker.textContent = '|';
-    mirror.appendChild(before);
-    mirror.appendChild(marker);
+    const val = ta.value.slice(0, ta.selectionStart);
+    const lines = val.split('\n');
+    const lineNum = lines.length - 1;
+    const colNum  = lines[lines.length - 1].length;
 
-    document.body.appendChild(mirror);
+    const relX = padLeft + colNum * charW;
+    const relY = padTop  + lineNum * lineH;
 
-    const taRect     = ta.getBoundingClientRect();
-    const mirrorRect = mirror.getBoundingClientRect();
-    const markerRect = marker.getBoundingClientRect();
+    // Clamp to textarea bounds
+    const x = rect.left + Math.min(relX, rect.width  - 8);
+    const y = rect.top  + Math.min(relY - ta.scrollTop, rect.height - 8);
 
-    document.body.removeChild(mirror);
-
-    // Offset by textarea's scroll and position
-    const x = taRect.left + (markerRect.left - mirrorRect.left) - ta.scrollLeft;
-    const y = taRect.top  + (markerRect.top  - mirrorRect.top)  - ta.scrollTop;
-
-    return { x: Math.max(taRect.left, Math.min(x, taRect.right)),
-             y: Math.max(taRect.top,  Math.min(y, taRect.bottom)) };
+    return { x, y };
   }
 
   /* ── Debounced handler ── */
   let lookupTimer = null;
-  function scheduleLookup(ta, eventType) {
+  let aiCache = {};
+
+  async function defineWithAI(word) {
+    if (aiCache[word]) return aiCache[word];
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 120,
+          messages: [{
+            role: 'user',
+            content: `Define the word or term "${word}" in 1-2 short, simple sentences. Plain English only. No markdown. Just the definition.`
+          }]
+        })
+      });
+      const data = await resp.json();
+      const text = data?.content?.[0]?.text?.trim() || null;
+      if (text) aiCache[word] = text;
+      return text;
+    } catch(e) { return null; }
+  }
+
+  function scheduleLookup(ta, eventType, overrideCoords) {
     clearTimeout(lookupTimer);
-    lookupTimer = setTimeout(() => {
+    // Fast for selection/click, very fast for keyup
+    const delay = eventType === 'select' ? 80 : eventType === 'keyup' ? 100 : 60;
+    lookupTimer = setTimeout(async () => {
       if (!enabled) return;
-      const word = eventType === 'select'
-        ? getSelectedWord(ta)
+      const word = (eventType === 'select' || eventType === 'hover')
+        ? getSelectedWord(ta) || getWordAtCursor(ta)
         : getWordAtCursor(ta);
       if (!word) { hideTooltip(false); return; }
+
+      // Check local KB first (instant)
       const key   = normalize(word);
       const entry = key ? KB[key] : null;
-      if (!entry) { hideTooltip(false); return; }
-      if (word === currentWord) return;
-      currentWord = word;
-      const coords = getCaretCoords(ta);
-      showTooltip(entry, word, coords.x, coords.y);
-    }, eventType === 'select' ? 200 : 400);
+      // Use mouse position for selections (more accurate), caret coords for typing
+      const useMouseCoords = (eventType === 'select' || eventType === 'hover');
+      const coords = overrideCoords || (useMouseCoords
+        ? { x: lastMouseX, y: lastMouseY }
+        : getCaretCoords(ta));
+
+      if (entry) {
+        currentWord = word;
+        showTooltip(entry, word, coords.x, coords.y);
+        return;
+      }
+
+      // For selected text, use AI definition
+      if (eventType === 'select' || eventType === 'hover') {
+        if (currentWord === word) return; // already showing
+        currentWord = word;
+        showTooltip({ kind:'ai', badge:'AI', desc:'Defining…', example: null }, word, coords.x, coords.y);
+        const def = await defineWithAI(word);
+        if (def && currentWord === word) {
+          showTooltip({ kind:'ai', badge:'DEF', desc: def, example: null }, word, coords.x, coords.y);
+        } else if (!def && currentWord === word) {
+          hideTooltip(false);
+        }
+      } else {
+        hideTooltip(false);
+      }
+    }, delay);
   }
 
   /* ── Attach listeners to all editor textareas ── */
   function attachToTextarea(ta) {
-    ta.addEventListener('keyup',         () => scheduleLookup(ta, 'keyup'));
-    ta.addEventListener('click',         () => scheduleLookup(ta, 'click'));
-    ta.addEventListener('select',        () => scheduleLookup(ta, 'select'));
-    ta.addEventListener('mouseup',       () => scheduleLookup(ta, 'select'));
-    ta.addEventListener('keydown',       () => { currentWord = ''; hideTooltip(false); });
-    ta.addEventListener('blur',          () => hideTooltip(false));
-    ta.addEventListener('scroll',        () => hideTooltip(true));
+    ta.addEventListener('keyup',   () => scheduleLookup(ta, 'keyup'));
+    ta.addEventListener('click',   () => scheduleLookup(ta, 'click'));
+    ta.addEventListener('select',  () => scheduleLookup(ta, 'select'));
+    ta.addEventListener('mouseup', () => scheduleLookup(ta, 'select'));
+    ta.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { currentWord = ''; hideTooltip(true); }
+    });
+    ta.addEventListener('blur',    () => hideTooltip(false));
+    ta.addEventListener('scroll',  () => hideTooltip(true));
   }
 
   /* Attach to all textareas */
