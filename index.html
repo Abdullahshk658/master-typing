@@ -890,6 +890,139 @@
     .page.active > .main-wrap { animation: pageIn 0.3s ease both; }
 
     /* ============================================================
+       CODE INTELLISENSE TOOLTIP
+    ============================================================ */
+    #code-tooltip {
+      position: fixed;
+      z-index: 9000;
+      max-width: 320px;
+      min-width: 200px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(6px) scale(0.97);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      font-family: var(--mono);
+    }
+    #code-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .tooltip-inner {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+      overflow: hidden;
+    }
+    [data-theme="light"] .tooltip-inner {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .tooltip-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px 6px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .tooltip-kind-badge {
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+    .tooltip-kind-badge.html  { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); }
+    .tooltip-kind-badge.css   { background: rgba(56,189,248,0.13); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25); }
+    .tooltip-kind-badge.js    { background: rgba(251,191,36,0.13); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+    .tooltip-kind-badge.kw    { background: rgba(167,139,250,0.14); color: #a78bfa; border: 1px solid rgba(167,139,250,0.25); }
+    [data-theme="light"] .tooltip-kind-badge.html  { background: rgba(249,115,22,0.1);  color: #d9600a; }
+    [data-theme="light"] .tooltip-kind-badge.css   { background: rgba(56,189,248,0.1);  color: #0284c7; }
+    [data-theme="light"] .tooltip-kind-badge.js    { background: rgba(202,138,4,0.12);  color: #b45309; }
+    [data-theme="light"] .tooltip-kind-badge.kw    { background: rgba(109,40,217,0.1);  color: #6d28d9; }
+    .tooltip-keyword {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tooltip-body {
+      padding: 9px 12px 8px;
+    }
+    .tooltip-desc {
+      font-size: 0.72rem;
+      line-height: 1.55;
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+    [data-theme="light"] .tooltip-desc { color: #4b5563; }
+    .tooltip-example {
+      margin-top: 7px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.67rem;
+      color: #86efac;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    [data-theme="light"] .tooltip-example {
+      background: #f0f9ff;
+      border-color: #bae6fd;
+      color: #0369a1;
+    }
+    .tooltip-example-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      margin-bottom: 4px;
+    }
+    .tooltip-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 4px 12px 6px;
+      border-top: 1px solid var(--border);
+    }
+    .tooltip-shortcut {
+      font-size: 0.58rem;
+      color: var(--muted2);
+      letter-spacing: 0.04em;
+    }
+    /* Tooltip toggle button in controls bar */
+    .intellisense-toggle {
+      display: flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--border2);
+      color: var(--muted); font-family: var(--mono); font-size: 0.67rem;
+      padding: 4px 11px; border-radius: 7px; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+      letter-spacing: 0.03em;
+    }
+    .intellisense-toggle:hover { color: var(--accent); border-color: rgba(0,229,255,0.3); background: var(--accent-dim); }
+    .intellisense-toggle.active {
+      color: var(--accent); border-color: rgba(0,229,255,0.3);
+      background: var(--accent-dim); box-shadow: 0 0 8px rgba(0,229,255,0.1);
+    }
+    .intellisense-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--muted2); transition: all 0.2s;
+    }
+    .intellisense-toggle.active .intellisense-dot {
+      background: var(--accent); box-shadow: 0 0 5px var(--accent-glow);
+      animation: autorun-pulse 2s ease-in-out infinite;
+    }
+
+    /* ============================================================
        RESPONSIVE
     ============================================================ */
     @media (max-width: 960px) {
@@ -908,6 +1041,28 @@
   </style>
 </head>
 <body>
+
+<!-- ============================================================
+     GLOBAL INTELLISENSE TOOLTIP — rendered once, repositioned by JS
+============================================================ -->
+<div id="code-tooltip" role="tooltip" aria-live="polite">
+  <div class="tooltip-inner">
+    <div class="tooltip-header">
+      <span class="tooltip-kind-badge html" id="tt-badge">HTML</span>
+      <span class="tooltip-keyword" id="tt-keyword">div</span>
+    </div>
+    <div class="tooltip-body">
+      <div class="tooltip-desc" id="tt-desc">Description goes here.</div>
+      <div id="tt-example-wrap" style="display:none;">
+        <div class="tooltip-example-label">Example</div>
+        <div class="tooltip-example" id="tt-example"></div>
+      </div>
+    </div>
+    <div class="tooltip-footer">
+      <span class="tooltip-shortcut">IntelliSense · MemType</span>
+    </div>
+  </div>
+</div>
 
 <!-- ============================================================
      HEADER
@@ -1153,6 +1308,9 @@
       <div class="preview-controls">
         <button class="cp-btn amber" id="cp-run-btn">▶ Run</button>
         <button class="cp-btn" id="cp-clear-btn">✕ Clear All</button>
+        <button class="intellisense-toggle active" id="intellisense-toggle-btn" title="Toggle IntelliSense tooltips (Ctrl+I)">
+          <span class="intellisense-dot"></span> IntelliSense
+        </button>
         <button class="cp-btn" id="cp-undock-btn" title="Open preview in a separate window (Ctrl+Shift+U)">⧉ Undock</button>
         <button class="cp-btn" id="cp-fullscreen-btn">⤢ Expand</button>
         <button class="cp-btn" id="cp-console-toggle">▾ Console</button>
@@ -1332,6 +1490,7 @@
   <div class="status-item"><span class="key">Ctrl+Enter</span> Run Preview</div>
   <div class="status-item"><span class="key">Ctrl+L</span> Load (Fill)</div>
   <div class="status-item"><span class="key">Ctrl+Shift+U</span> Undock</div>
+  <div class="status-item"><span class="key">Ctrl+I</span> IntelliSense</div>
   <div class="status-item"><span class="key">Ctrl+Shift+F</span> Fill Mode</div>
 </div>
 
@@ -2591,6 +2750,396 @@ tick(); setInterval(tick,1000);`
   })(); // end cpGhostModule
 
 })(); // end previewModule
+
+/* ============================================================
+   INTELLISENSE TOOLTIP MODULE
+   Contextual keyword documentation for HTML, CSS, and JS
+   across all three editor surfaces in MemType.
+============================================================ */
+(function intellisenseModule() {
+  'use strict';
+
+  /* ── State ── */
+  let enabled      = true;
+  let hideTimer    = null;
+  let currentWord  = '';
+  const tooltip    = document.getElementById('code-tooltip');
+  const ttBadge    = document.getElementById('tt-badge');
+  const ttKeyword  = document.getElementById('tt-keyword');
+  const ttDesc     = document.getElementById('tt-desc');
+  const ttExample  = document.getElementById('tt-example');
+  const ttExWrap   = document.getElementById('tt-example-wrap');
+  const toggleBtn  = document.getElementById('intellisense-toggle-btn');
+
+  /* ── Toggle ── */
+  function setEnabled(v) {
+    enabled = v;
+    toggleBtn.classList.toggle('active', v);
+    if (!v) hideTooltip(true);
+    try { localStorage.setItem('memtype-intellisense', v ? '1' : '0'); } catch(e){}
+  }
+  toggleBtn.addEventListener('click', () => setEnabled(!enabled));
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey||e.metaKey) && (e.key==='i'||e.key==='I') && !e.shiftKey) {
+      e.preventDefault(); setEnabled(!enabled);
+    }
+  });
+  try {
+    const saved = localStorage.getItem('memtype-intellisense');
+    if (saved === '0') setEnabled(false);
+  } catch(e) {}
+
+  /* ────────────────────────────────────────────────────────────
+     KNOWLEDGE BASE
+     Structure: { keyword: { kind, badge, desc, example? } }
+  ──────────────────────────────────────────────────────────── */
+  const KB = {
+    /* ── HTML TAGS ── */
+    div:        { kind:'html', badge:'HTML', desc:'Generic block-level container. Groups content and applies layout, styling, or scripting. Has no semantic meaning by itself.', example:'\u003cdiv class="card"\u003e\n  Content here\n\u003c/div\u003e' },
+    span:       { kind:'html', badge:'HTML', desc:'Inline container with no semantic meaning. Used to apply styles or target specific text within a larger block.', example:'\u003cp\u003eHello \u003cspan class="bold"\u003eWorld\u003c/span\u003e\u003c/p\u003e' },
+    p:          { kind:'html', badge:'HTML', desc:'Paragraph element. Defines a block of text with automatic spacing above and below.', example:'\u003cp\u003eThis is a paragraph.\u003c/p\u003e' },
+    h1:         { kind:'html', badge:'HTML', desc:'Top-level heading. Use once per page for the main title. Carries the most semantic weight for SEO.', example:'\u003ch1\u003ePage Title\u003c/h1\u003e' },
+    h2:         { kind:'html', badge:'HTML', desc:'Second-level section heading. Creates visual hierarchy beneath the h1.', example:'\u003ch2\u003eSection Title\u003c/h2\u003e' },
+    h3:         { kind:'html', badge:'HTML', desc:'Third-level heading, often used for subsections or card titles.', example:'\u003ch3\u003eSubsection\u003c/h3\u003e' },
+    a:          { kind:'html', badge:'HTML', desc:'Anchor (hyperlink) element. The href attribute defines the destination URL. Use target="_blank" to open in a new tab.', example:'\u003ca href="https://example.com" target="_blank"\u003eVisit\u003c/a\u003e' },
+    img:        { kind:'html', badge:'HTML', desc:'Embeds an image. src defines the source path; alt provides accessible text for screen readers. Self-closing.', example:'\u003cimg src="photo.jpg" alt="Description"/\u003e' },
+    button:     { kind:'html', badge:'HTML', desc:'Clickable button element. Triggers events via onclick or addEventListener. Can have type="button", "submit", or "reset".', example:'\u003cbutton onclick="doSomething()"\u003eClick Me\u003c/button\u003e' },
+    input:      { kind:'html', badge:'HTML', desc:'Form input field. The type attribute determines its behavior: text, email, checkbox, range, number, password, etc.', example:'\u003cinput type="text" placeholder="Enter name"/\u003e' },
+    form:       { kind:'html', badge:'HTML', desc:'Container for form controls. action defines submission URL; method can be "GET" or "POST".', example:'\u003cform action="/submit" method="POST"\u003e\n  ...\n\u003c/form\u003e' },
+    label:      { kind:'html', badge:'HTML', desc:'Associates a text label with a form element. Use for="id" to link it to the matching input\'s id for accessibility.', example:'\u003clabel for="email"\u003eEmail\u003c/label\u003e\n\u003cinput id="email" type="email"/\u003e' },
+    select:     { kind:'html', badge:'HTML', desc:'Dropdown selection menu. Contains \u003coption\u003e children. value attribute stores the selected option\'s value.', example:'\u003cselect\u003e\n  \u003coption value="a"\u003eOption A\u003c/option\u003e\n\u003c/select\u003e' },
+    textarea:   { kind:'html', badge:'HTML', desc:'Multi-line text input. rows and cols attributes (or CSS) control its size. Content goes between tags.', example:'\u003ctextarea rows="4" placeholder="Type here…"\u003e\u003c/textarea\u003e' },
+    ul:         { kind:'html', badge:'HTML', desc:'Unordered (bulleted) list. Children must be \u003cli\u003e elements. Style bullet type with list-style-type CSS.', example:'\u003cul\u003e\n  \u003cli\u003eItem one\u003c/li\u003e\n  \u003cli\u003eItem two\u003c/li\u003e\n\u003c/ul\u003e' },
+    ol:         { kind:'html', badge:'HTML', desc:'Ordered (numbered) list. Children must be \u003cli\u003e elements. start attribute sets the beginning number.', example:'\u003col\u003e\n  \u003cli\u003eFirst\u003c/li\u003e\n  \u003cli\u003eSecond\u003c/li\u003e\n\u003c/ol\u003e' },
+    li:         { kind:'html', badge:'HTML', desc:'List item. Must be a direct child of \u003cul\u003e, \u003col\u003e, or \u003cmenu\u003e.', example:'\u003cli\u003eList item content\u003c/li\u003e' },
+    table:      { kind:'html', badge:'HTML', desc:'HTML table for tabular data. Contains \u003cthead\u003e, \u003ctbody\u003e, \u003ctr\u003e, \u003cth\u003e, and \u003ctd\u003e elements.', example:'\u003ctable\u003e\n  \u003ctr\u003e\u003cth\u003eName\u003c/th\u003e\u003cth\u003eAge\u003c/th\u003e\u003c/tr\u003e\n  \u003ctr\u003e\u003ctd\u003eAlex\u003c/td\u003e\u003ctd\u003e30\u003c/td\u003e\u003c/tr\u003e\n\u003c/table\u003e' },
+    thead:      { kind:'html', badge:'HTML', desc:'Groups the header rows of a table. Contains \u003ctr\u003e with \u003cth\u003e elements. Helps with accessibility and styling.', example:'\u003cthead\u003e\u003ctr\u003e\u003cth\u003eCol 1\u003c/th\u003e\u003c/tr\u003e\u003c/thead\u003e' },
+    tbody:      { kind:'html', badge:'HTML', desc:'Groups the body rows of a table. Contains the main data rows with \u003ctr\u003e and \u003ctd\u003e elements.', example:'\u003ctbody\u003e\u003ctr\u003e\u003ctd\u003eData\u003c/td\u003e\u003c/tr\u003e\u003c/tbody\u003e' },
+    tr:         { kind:'html', badge:'HTML', desc:'Table row. A container for a single row of \u003cth\u003e or \u003ctd\u003e cells.', example:'\u003ctr\u003e\u003ctd\u003eCell 1\u003c/td\u003e\u003ctd\u003eCell 2\u003c/td\u003e\u003c/tr\u003e' },
+    td:         { kind:'html', badge:'HTML', desc:'Table data cell. colspan and rowspan attributes allow spanning multiple columns or rows.', example:'\u003ctd colspan="2"\u003eMerged cell\u003c/td\u003e' },
+    th:         { kind:'html', badge:'HTML', desc:'Table header cell. Bold and centered by default. scope="col/row" improves accessibility.', example:'\u003cth scope="col"\u003eColumn Header\u003c/th\u003e' },
+    nav:        { kind:'html', badge:'HTML', desc:'Semantic navigation landmark. Wraps major navigation links. Screen readers use it to identify navigation menus.', example:'\u003cnav\u003e\n  \u003ca href="/"\u003eHome\u003c/a\u003e\n  \u003ca href="/about"\u003eAbout\u003c/a\u003e\n\u003c/nav\u003e' },
+    header:     { kind:'html', badge:'HTML', desc:'Semantic page or section header. Typically holds logos, titles, and navigation. Can appear inside sections too.', example:'\u003cheader\u003e\n  \u003ch1\u003eSite Title\u003c/h1\u003e\n  \u003cnav\u003e…\u003c/nav\u003e\n\u003c/header\u003e' },
+    footer:     { kind:'html', badge:'HTML', desc:'Semantic footer for a page or section. Contains copyright, links, or contact info.', example:'\u003cfooter\u003e\u003cp\u003e© 2025 My Site\u003c/p\u003e\u003c/footer\u003e' },
+    main:       { kind:'html', badge:'HTML', desc:'The primary unique content of the page. There should be only one \u003cmain\u003e per page. Skipped by screen reader navigation aids.', example:'\u003cmain\u003e\n  \u003ch1\u003eMain Content\u003c/h1\u003e\n\u003c/main\u003e' },
+    section:    { kind:'html', badge:'HTML', desc:'Thematic grouping of content, typically with a heading. More meaningful than \u003cdiv\u003e for document structure.', example:'\u003csection\u003e\n  \u003ch2\u003eAbout Us\u003c/h2\u003e\n  \u003cp\u003e…\u003c/p\u003e\n\u003c/section\u003e' },
+    article:    { kind:'html', badge:'HTML', desc:'Self-contained content that could stand alone (blog post, news article, comment). Nestable inside \u003csection\u003e.', example:'\u003carticle\u003e\n  \u003ch2\u003ePost Title\u003c/h2\u003e\n  \u003cp\u003eContent…\u003c/p\u003e\n\u003c/article\u003e' },
+    aside:      { kind:'html', badge:'HTML', desc:'Content tangentially related to the main content. Used for sidebars, pull quotes, or ads.', example:'\u003caside\u003e\n  \u003ch3\u003eRelated Links\u003c/h3\u003e\n\u003c/aside\u003e' },
+    script:     { kind:'html', badge:'HTML', desc:'Embeds or links to JavaScript. src attribute links external files. Place at end of \u003cbody\u003e or use defer/async attributes.', example:'\u003cscript src="app.js" defer\u003e\u003c/script\u003e' },
+    link:       { kind:'html', badge:'HTML', desc:'Links external resources to the document. Most commonly used to load stylesheets. rel="stylesheet" is required for CSS.', example:'\u003clink rel="stylesheet" href="style.css"/\u003e' },
+    meta:       { kind:'html', badge:'HTML', desc:'Provides metadata about the HTML document: charset, viewport, description, Open Graph, etc. Always inside \u003chead\u003e.', example:'\u003cmeta name="description" content="Page description"/\u003e' },
+    style:      { kind:'html', badge:'HTML', desc:'Embeds inline CSS styles within the HTML document. Should be inside \u003chead\u003e. For maintainability, prefer external stylesheets.', example:'\u003cstyle\u003e\n  body { background: #fff; }\n\u003c/style\u003e' },
+    canvas:     { kind:'html', badge:'HTML', desc:'A drawable surface for graphics via the JavaScript Canvas API. Define width and height as attributes, not CSS.', example:'\u003ccanvas id="myCanvas" width="400" height="300"\u003e\u003c/canvas\u003e' },
+    video:      { kind:'html', badge:'HTML', desc:'Embeds video content. controls attribute adds native play/pause UI. src or \u003csource\u003e children define the video file.', example:'\u003cvideo src="clip.mp4" controls autoplay muted\u003e\u003c/video\u003e' },
+    audio:      { kind:'html', badge:'HTML', desc:'Embeds audio content. controls shows native UI. preload="auto/metadata/none" controls loading behavior.', example:'\u003caudio src="sound.mp3" controls\u003e\u003c/audio\u003e' },
+    iframe:     { kind:'html', badge:'HTML', desc:'Embeds another HTML page or external URL inside the current page. sandbox attribute restricts permissions for security.', example:'\u003ciframe src="https://example.com" sandbox\u003e\u003c/iframe\u003e' },
+    svg:        { kind:'html', badge:'HTML', desc:'Scalable Vector Graphics container. Renders resolution-independent vector shapes, icons, and illustrations.', example:'\u003csvg width="100" height="100"\u003e\n  \u003ccircle cx="50" cy="50" r="40" fill="blue"/\u003e\n\u003c/svg\u003e' },
+    path:       { kind:'html', badge:'HTML', desc:'SVG path element. The d attribute defines the shape using path commands: M (move), L (line), C (curve), Z (close).', example:'\u003cpath d="M 10 80 C 40 10, 65 10, 95 80" stroke="black" fill="none"/\u003e' },
+    circle:     { kind:'html', badge:'HTML', desc:'SVG circle. cx and cy set the center, r sets the radius. fill and stroke control colors.', example:'\u003ccircle cx="50" cy="50" r="30" fill="#00e5ff"/\u003e' },
+    rect:       { kind:'html', badge:'HTML', desc:'SVG rectangle. x and y set position; width and height define size. rx/ry round the corners.', example:'\u003crect x="10" y="10" width="80" height="60" rx="8" fill="#a78bfa"/\u003e' },
+    line:       { kind:'html', badge:'HTML', desc:'SVG line element. x1,y1 defines start point; x2,y2 defines end point. stroke sets the line color.', example:'\u003cline x1="0" y1="0" x2="100" y2="100" stroke="red" stroke-width="2"/\u003e' },
+    /* ── CSS PROPERTIES ── */
+    display:      { kind:'css', badge:'CSS', desc:'Controls how an element generates boxes. Key values: block, inline, inline-block, flex, grid, none (hidden).', example:'display: flex;\ndisplay: grid;\ndisplay: none;' },
+    flex:         { kind:'css', badge:'CSS', desc:'Flex shorthand. Also enables Flexbox layout when used as display: flex. As shorthand: flex: grow shrink basis.', example:'display: flex;\nflex: 1 1 auto;' },
+    flexDirection:{ kind:'css', badge:'CSS', desc:'Sets the main axis direction in a flex container. row (default), column, row-reverse, column-reverse.', example:'flex-direction: row;\nflex-direction: column;' },
+    flexWrap:     { kind:'css', badge:'CSS', desc:'Controls whether flex items wrap onto multiple lines. nowrap (default), wrap, wrap-reverse.', example:'flex-wrap: wrap;' },
+    justifyContent:{ kind:'css', badge:'CSS', desc:'Aligns flex/grid items along the main axis. flex-start, center, flex-end, space-between, space-around, space-evenly.', example:'justify-content: space-between;' },
+    alignItems:   { kind:'css', badge:'CSS', desc:'Aligns flex/grid items along the cross axis. stretch (default), flex-start, center, flex-end, baseline.', example:'align-items: center;' },
+    alignSelf:    { kind:'css', badge:'CSS', desc:'Overrides alignItems for a single flex child. auto, flex-start, center, flex-end, stretch.', example:'align-self: flex-end;' },
+    gap:          { kind:'css', badge:'CSS', desc:'Sets spacing between flex or grid items. Shorthand for row-gap and column-gap. Replaces the old margin trick.', example:'gap: 16px;\ngap: 12px 24px;' },
+    grid:         { kind:'css', badge:'CSS', desc:'Enables CSS Grid layout on a container. Combined with grid-template-columns and grid-template-rows to define the grid.', example:'display: grid;\ngrid-template-columns: 1fr 1fr 1fr;' },
+    gridTemplateColumns: { kind:'css', badge:'CSS', desc:'Defines the number and size of columns in a grid. fr unit distributes fractional space. repeat() shorthand is handy.', example:'grid-template-columns: repeat(3, 1fr);\ngrid-template-columns: 200px auto 1fr;' },
+    gridColumn:   { kind:'css', badge:'CSS', desc:'Controls how many columns a grid item spans. span N stretches across N columns from its start position.', example:'grid-column: span 2;\ngrid-column: 1 / 4;' },
+    position:     { kind:'css', badge:'CSS', desc:'Controls the positioning method. static (default), relative, absolute, fixed, sticky. Enables top/left/right/bottom.', example:'position: absolute;\ntop: 0;\nleft: 0;' },
+    top:          { kind:'css', badge:'CSS', desc:'Offset from the top edge for positioned elements (position not static). Works with relative, absolute, fixed, sticky.', example:'position: absolute;\ntop: 20px;' },
+    left:         { kind:'css', badge:'CSS', desc:'Offset from the left edge for positioned elements. In RTL layouts, use inset-inline-start instead.', example:'position: fixed;\nleft: 0;' },
+    right:        { kind:'css', badge:'CSS', desc:'Offset from the right edge for positioned elements (position not static).', example:'position: absolute;\nright: 12px;' },
+    bottom:       { kind:'css', badge:'CSS', desc:'Offset from the bottom edge for positioned elements.', example:'position: sticky;\nbottom: 0;' },
+    zIndex:       { kind:'css', badge:'CSS', desc:'Controls stacking order. Higher values appear on top. Only works on positioned elements (not static). Creates stacking context.', example:'z-index: 100;\nz-index: -1;' },
+    width:        { kind:'css', badge:'CSS', desc:'Sets the width of an element\'s content area. Can use px, %, em, rem, vw, or min/max-content, fit-content.', example:'width: 100%;\nwidth: 320px;' },
+    height:       { kind:'css', badge:'CSS', desc:'Sets the height of an element. Percentages require the parent to have a defined height to work correctly.', example:'height: 100vh;\nheight: 200px;' },
+    minWidth:     { kind:'css', badge:'CSS', desc:'Prevents the element from shrinking below this width. Overrides width if it would be smaller.', example:'min-width: 280px;' },
+    maxWidth:     { kind:'css', badge:'CSS', desc:'Prevents the element from growing beyond this width. Commonly used for responsive layouts to constrain content.', example:'max-width: 1200px;\nmargin: 0 auto;' },
+    margin:       { kind:'css', badge:'CSS', desc:'Outer spacing around an element. Shorthand: 1 value (all), 2 values (top/bottom left/right), 4 values (T R B L). Auto centers block elements.', example:'margin: 0 auto;\nmargin: 16px 24px;' },
+    padding:      { kind:'css', badge:'CSS', desc:'Inner spacing between content and border. Same shorthand as margin. Increases clickable area. Affected by box-sizing.', example:'padding: 20px;\npadding: 8px 16px;' },
+    border:       { kind:'css', badge:'CSS', desc:'Shorthand for border-width, border-style, border-color. Example: 1px solid #ccc.', example:'border: 1px solid rgba(255,255,255,0.1);\nborder: 2px dashed #00e5ff;' },
+    borderRadius: { kind:'css', badge:'CSS', desc:'Rounds element corners. Single value applies to all corners. Use 50% for circles. Supports individual corners.', example:'border-radius: 8px;\nborder-radius: 50%;\nborder-radius: 12px 4px;' },
+    boxShadow:    { kind:'css', badge:'CSS', desc:'Adds shadow effects. Syntax: offset-x offset-y blur spread color. Multiple shadows separated by commas. inset makes inner shadow.', example:'box-shadow: 0 4px 20px rgba(0,0,0,0.4);\nbox-shadow: inset 0 1px 0 rgba(255,255,255,0.1);' },
+    background:   { kind:'css', badge:'CSS', desc:'Shorthand for background properties. Accepts color, image, gradient, size, position, and repeat in one declaration.', example:'background: linear-gradient(135deg, #667eea, #764ba2);\nbackground: #0c0d10 url("bg.png") no-repeat center;' },
+    backgroundColor: { kind:'css', badge:'CSS', desc:'Sets the background fill color of an element. Transparent by default. Supports any CSS color format.', example:'background-color: #13151a;\nbackground-color: rgba(0,229,255,0.1);' },
+    backgroundImage: { kind:'css', badge:'CSS', desc:'Sets background image or gradient. Use url() for images, linear-gradient() or radial-gradient() for gradients.', example:'background-image: linear-gradient(to right, #0c0d10, #1c1f27);' },
+    color:        { kind:'css', badge:'CSS', desc:'Sets the foreground color for text and SVG fill. Inheritable. Accepts hex, rgb(), hsl(), named colors, or currentColor.', example:'color: #e2e4ec;\ncolor: rgba(255,255,255,0.7);' },
+    fontSize:     { kind:'css', badge:'CSS', desc:'Sets text size. rem is relative to root element; em is relative to parent. Use rem for scalable, accessible typography.', example:'font-size: 1rem;\nfont-size: 14px;\nfont-size: 0.875rem;' },
+    fontWeight:   { kind:'css', badge:'CSS', desc:'Sets text boldness. Numeric values: 100 (thin) to 900 (black). Named: normal (400), bold (700).', example:'font-weight: 700;\nfont-weight: 400;' },
+    fontFamily:   { kind:'css', badge:'CSS', desc:'Sets the typeface. Provide a comma-separated list ending with a generic family (serif, sans-serif, monospace).', example:"font-family: 'JetBrains Mono', monospace;\nfont-family: 'Syne', sans-serif;" },
+    lineHeight:   { kind:'css', badge:'CSS', desc:'Sets vertical space between lines of text. Unitless values (e.g. 1.6) scale relative to the font size and are preferred.', example:'line-height: 1.6;\nline-height: 1.78;' },
+    letterSpacing:{ kind:'css', badge:'CSS', desc:'Adds space between characters. Use em for values that scale with font size. Negative values bring letters closer.', example:'letter-spacing: 0.05em;\nletter-spacing: -0.03em;' },
+    textAlign:    { kind:'css', badge:'CSS', desc:'Horizontal alignment of inline content. left, right, center, justify, start, end.', example:'text-align: center;\ntext-align: left;' },
+    textTransform:{ kind:'css', badge:'CSS', desc:'Changes text capitalization. uppercase, lowercase, capitalize, none.', example:'text-transform: uppercase;\ntext-transform: capitalize;' },
+    textDecoration:{ kind:'css', badge:'CSS', desc:'Adds/removes lines on text. none removes underline from links. underline, overline, line-through.', example:'text-decoration: none;\ntext-decoration: underline;' },
+    overflow:     { kind:'css', badge:'CSS', desc:'Controls what happens when content overflows its container. hidden clips it; scroll always shows scrollbar; auto adds it only when needed.', example:'overflow: hidden;\noverflow-y: auto;' },
+    opacity:      { kind:'css', badge:'CSS', desc:'Sets element transparency. 0 = invisible, 1 = fully opaque. Unlike visibility:hidden, the element still occupies space.', example:'opacity: 0.5;\nopacity: 1;' },
+    transform:    { kind:'css', badge:'CSS', desc:'Applies 2D/3D transformations without affecting layout flow. Functions: translate(), scale(), rotate(), skew().', example:'transform: translateX(-50%);\ntransform: scale(1.05) rotate(3deg);' },
+    transition:   { kind:'css', badge:'CSS', desc:'Animates CSS property changes. Syntax: property duration timing-function delay. Comma-separate multiple transitions.', example:'transition: all 0.3s ease;\ntransition: opacity 0.2s, transform 0.3s;' },
+    animation:    { kind:'css', badge:'CSS', desc:'Attaches a @keyframes animation. Syntax: name duration timing-function delay iteration-count direction.', example:'animation: fadeIn 0.4s ease both;\nanimation: spin 2s linear infinite;' },
+    cursor:       { kind:'css', badge:'CSS', desc:'Sets the mouse cursor appearance. pointer for clickable elements, default, text, grab, crosshair, not-allowed, etc.', example:'cursor: pointer;\ncursor: not-allowed;' },
+    outline:      { kind:'css', badge:'CSS', desc:'Drawn outside the border and does not affect layout. Commonly used for focus rings. outline: none removes the default.', example:'outline: none;\noutline: 2px solid #00e5ff;' },
+    userSelect:   { kind:'css', badge:'CSS', desc:'Controls if text can be selected by the user. none prevents selection (useful for UI chrome). Use -webkit-user-select for Safari.', example:'user-select: none;' },
+    pointerEvents:{ kind:'css', badge:'CSS', desc:'Controls whether an element responds to pointer interactions. none makes it "click-through" — very useful for overlay layers.', example:'pointer-events: none;\npointer-events: auto;' },
+    content:      { kind:'css', badge:'CSS', desc:'Used with ::before and ::after pseudo-elements to insert generated content. Requires display not none.', example:'content: "";\ncontent: "→";' },
+    filter:       { kind:'css', badge:'CSS', desc:'Applies graphical effects: blur(), brightness(), contrast(), grayscale(), drop-shadow(), etc.', example:'filter: blur(4px);\nfilter: brightness(0.8) contrast(1.2);' },
+    backdropFilter:{ kind:'css', badge:'CSS', desc:'Applies filter effects to the area behind the element (frosted glass effect). Use with a semi-transparent background.', example:'backdrop-filter: blur(16px);\nbackground: rgba(0,0,0,0.5);' },
+    resize:       { kind:'css', badge:'CSS', desc:'Controls resizability of an element by the user. none, both, horizontal, vertical. Only works with overflow not visible.', example:'resize: none;\nresize: vertical;' },
+    whiteSpace:   { kind:'css', badge:'CSS', desc:'Controls whitespace handling and line breaks. nowrap prevents wrapping; pre preserves spaces and newlines.', example:'white-space: nowrap;\nwhite-space: pre-wrap;' },
+    boxSizing:    { kind:'css', badge:'CSS', desc:'Determines how width/height is calculated. border-box includes padding and border. The modern default for most reset stylesheets.', example:'box-sizing: border-box;' },
+    objectFit:    { kind:'css', badge:'CSS', desc:'Controls how \u003cimg\u003e or \u003cvideo\u003e fills its container. cover fills without distortion (may crop); contain shows the whole image.', example:'object-fit: cover;\nobject-fit: contain;' },
+    tabSize:      { kind:'css', badge:'CSS', desc:'Sets the width of a tab character in pre-formatted or textarea content. Accepts integer or length values.', example:'tab-size: 2;\ntab-size: 4;' },
+    caretColor:   { kind:'css', badge:'CSS', desc:'Sets the color of the text input cursor (caret) in editable elements. Accepts any CSS color value.', example:'caret-color: #00e5ff;\ncaret-color: transparent;' },
+    /* ── CSS VALUES / KEYWORDS ── */
+    px:           { kind:'css', badge:'CSS', desc:'Pixel unit. An absolute length unit. 1px = one device-independent pixel (may be multiple physical pixels on HiDPI displays).', example:'font-size: 16px;\nmargin: 8px;' },
+    rem:          { kind:'css', badge:'CSS', desc:'Root em unit. Relative to the root element font-size (default 16px in browsers). Ideal for accessible, scalable layouts.', example:'padding: 1rem;\nfont-size: 0.875rem; /* = 14px */' },
+    em:           { kind:'css', badge:'CSS', desc:'Em unit. Relative to the current element\'s font-size. Compounding can be tricky — prefer rem for font sizes.', example:'margin: 1.5em;\npadding: 0.5em 1em;' },
+    vh:           { kind:'css', badge:'CSS', desc:'Viewport height unit. 1vh = 1% of the viewport\'s height. 100vh = full screen height.', example:'height: 100vh;\nmin-height: 50vh;' },
+    vw:           { kind:'css', badge:'CSS', desc:'Viewport width unit. 1vw = 1% of the viewport width. Useful for fluid typography with clamp().', example:'width: 100vw;\nfont-size: 2vw;' },
+    /* ── JS KEYWORDS & BUILTINS ── */
+    const:        { kind:'js', badge:'JS', desc:'Declares a block-scoped constant. The binding cannot be reassigned, but object/array contents can still be mutated.', example:'const PI = 3.14159;\nconst user = { name: "Alex" };' },
+    let:          { kind:'js', badge:'JS', desc:'Declares a block-scoped variable that can be reassigned. Preferred over var for most use cases.', example:'let count = 0;\ncount += 1;' },
+    var:          { kind:'js', badge:'JS', desc:'Function-scoped variable declaration (legacy). Avoid in modern code — use const or let instead. Hoisted to function top.', example:'var x = 10; // avoid in modern JS' },
+    function:     { kind:'js', badge:'JS', desc:'Declares a named function. function declarations are hoisted, so they can be called before their definition in code.', example:'function greet(name) {\n  return "Hello, " + name;\n}' },
+    return:       { kind:'js', badge:'JS', desc:'Exits a function and optionally returns a value. Without a value, the function returns undefined. Stops execution immediately.', example:'function add(a, b) {\n  return a + b;\n}' },
+    class:        { kind:'js', badge:'JS', desc:'Syntactic sugar over JS prototype chains. Defines a constructor, methods, and inheritance. Use extends for subclassing.', example:'class Animal {\n  constructor(name) { this.name = name; }\n  speak() { return this.name + " speaks"; }\n}' },
+    new:          { kind:'js', badge:'JS', desc:'Creates an instance of a constructor function or class. Allocates a new object and calls the constructor with this bound to it.', example:'const date = new Date();\nconst map  = new Map();' },
+    this:         { kind:'js', badge:'JS', desc:'Refers to the current execution context. In classes/methods: the instance. In arrow functions: lexically inherited from outer scope.', example:'class Counter {\n  constructor() { this.count = 0; }\n  inc() { this.count++; }\n}' },
+    async:        { kind:'js', badge:'JS', desc:'Marks a function as asynchronous. It always returns a Promise. Enables use of await inside the function body.', example:'async function fetchData(url) {\n  const res = await fetch(url);\n  return res.json();\n}' },
+    await:        { kind:'js', badge:'JS', desc:'Pauses async function execution until a Promise resolves. Must be inside an async function. Returns the resolved value.', example:'const data = await fetch("/api/users");\nconst json = await data.json();' },
+    if:           { kind:'js', badge:'JS', desc:'Conditional statement. Executes a block only if the condition is truthy. Pair with else if and else for branching logic.', example:'if (score \u003e= 90) {\n  grade = "A";\n} else if (score \u003e= 70) {\n  grade = "B";\n}' },
+    else:         { kind:'js', badge:'JS', desc:'Paired with if. Runs its block when the if condition is false. Can chain with else if for multiple conditions.', example:'if (isLoggedIn) {\n  showDashboard();\n} else {\n  showLogin();\n}' },
+    for:          { kind:'js', badge:'JS', desc:'Loop construct. Classic form: for(init; condition; update). Also for...of (iterables) and for...in (object keys).', example:'for (let i = 0; i \u003c arr.length; i++) {\n  console.log(arr[i]);\n}\nfor (const item of arr) { … }' },
+    while:        { kind:'js', badge:'JS', desc:'Loops while a condition is truthy. Check the condition before each iteration. Ensure the condition eventually becomes false.', example:'while (queue.length \u003e 0) {\n  process(queue.shift());\n}' },
+    switch:       { kind:'js', badge:'JS', desc:'Multi-way branch based on a value. Each case matches a value; break prevents fall-through. default handles unmatched cases.', example:'switch (status) {\n  case "ok": handle(); break;\n  default: warn();\n}' },
+    try:          { kind:'js', badge:'JS', desc:'Wraps code that might throw an error. Pair with catch to handle errors gracefully and finally for cleanup.', example:'try {\n  const data = JSON.parse(text);\n} catch (err) {\n  console.error(err);\n}' },
+    catch:        { kind:'js', badge:'JS', desc:'Handles errors thrown inside a try block. The error object contains message, name, and stack properties.', example:'try {\n  riskyOperation();\n} catch (e) {\n  console.error("Failed:", e.message);\n}' },
+    import:       { kind:'js', badge:'JS', desc:'ES Module syntax to import bindings from another module file. Named imports use {}, default imports use any name.', example:"import { useState } from 'react';\nimport utils from './utils.js';" },
+    export:       { kind:'js', badge:'JS', desc:'ES Module syntax to make values available to other modules. Named exports use {}, default export is one per file.', example:'export const API_URL = "https://api.example.com";\nexport default function App() { … }' },
+    typeof:       { kind:'js', badge:'JS', desc:'Returns a string indicating the type of a value: "string", "number", "boolean", "object", "function", "undefined", "symbol".', example:'typeof 42      // "number"\ntypeof null   // "object" (JS quirk)' },
+    console:      { kind:'js', badge:'JS', desc:'Built-in object for debugging output. Key methods: log(), error(), warn(), info(), table(), group(), time().', example:'console.log("value:", x);\nconsole.error("Failed:", err);\nconsole.table(data);' },
+    document:     { kind:'js', badge:'JS', desc:'The entry point to the DOM. Use it to query, create, and manipulate HTML elements. Also provides events like DOMContentLoaded.', example:'document.getElementById("app");\ndocument.querySelector(".btn");\ndocument.createElement("div");' },
+    window:       { kind:'js', badge:'JS', desc:'The global object in browsers. Contains location, history, localStorage, setTimeout, fetch, etc. All global vars are window properties.', example:'window.addEventListener("resize", onResize);\nwindow.location.href = "/about";' },
+    addEventListener: { kind:'js', badge:'JS', desc:'Attaches an event handler to an element or the window. Non-destructive — multiple listeners can coexist on one element.', example:'btn.addEventListener("click", (e) =\u003e {\n  e.preventDefault();\n  handleClick();\n});' },
+    querySelector:{ kind:'js', badge:'JS', desc:'Returns the first element matching a CSS selector. Returns null if no match. Use querySelectorAll for all matches.', example:'const el = document.querySelector(".card");\nconst btn = document.querySelector("#submit");' },
+    querySelectorAll: { kind:'js', badge:'JS', desc:'Returns a NodeList of all elements matching a CSS selector. Use forEach or Array.from() to iterate the results.', example:'document.querySelectorAll(".item").forEach(el =\u003e {\n  el.classList.add("visible");\n});' },
+    getElementById:{ kind:'js', badge:'JS', desc:'Returns the element with the matching id. Fastest DOM query method. Returns null if the id does not exist.', example:'const modal = document.getElementById("modal");\nmodal.style.display = "block";' },
+    createElement:{ kind:'js', badge:'JS', desc:'Creates a new HTML element in memory. Use appendChild or insertAdjacentElement to add it to the DOM.', example:'const div = document.createElement("div");\ndiv.className = "card";\ndocument.body.appendChild(div);' },
+    appendChild:  { kind:'js', badge:'JS', desc:'Appends a node as the last child of a parent. If the node already exists in the DOM, it is moved rather than copied.', example:'const li = document.createElement("li");\nli.textContent = "New item";\nlist.appendChild(li);' },
+    innerHTML:    { kind:'js', badge:'JS', desc:'Gets or sets the HTML markup inside an element. Parsing is slow; prefer textContent for plain text. Never set from untrusted input (XSS risk).', example:'el.innerHTML = "\u003cstrong\u003eBold\u003c/strong\u003e";\nconst html = container.innerHTML;' },
+    textContent:  { kind:'js', badge:'JS', desc:'Gets or sets the plain text content of an element. Faster than innerHTML. Sanitizes HTML — safe from XSS.', example:'label.textContent = "Hello!";\nconst text = el.textContent.trim();' },
+    classList:    { kind:'js', badge:'JS', desc:'A DOMTokenList for reading and modifying an element\'s CSS classes. Methods: add(), remove(), toggle(), contains(), replace().', example:'el.classList.add("active");\nel.classList.toggle("open");\nel.classList.remove("loading");' },
+    style:        { kind:'js', badge:'JS', desc:'Provides direct access to an element\'s inline styles. Property names use camelCase. Setting "" removes the style.', example:"el.style.display = 'none';\nel.style.backgroundColor = '#ff0';\nel.style.transform = 'scale(1.1)';" },
+    setAttribute: { kind:'js', badge:'JS', desc:'Sets an HTML attribute on an element. Use for non-standard attributes or ARIA. For class/style, prefer classList and style.', example:'img.setAttribute("alt", "Profile photo");\nel.setAttribute("aria-expanded", "true");' },
+    getAttribute: { kind:'js', badge:'JS', desc:'Returns the value of a specified attribute. Returns null if the attribute doesn\'t exist.', example:'const href = link.getAttribute("href");\nconst val  = input.getAttribute("data-id");' },
+    fetch:        { kind:'js', badge:'JS', desc:'Built-in HTTP request API returning a Promise. Chain .then() or use async/await. Always check response.ok before parsing.', example:'const res = await fetch("/api/data");\nif (!res.ok) throw new Error(res.statusText);\nconst data = await res.json();' },
+    Promise:      { kind:'js', badge:'JS', desc:'Represents the eventual result of an async operation. States: pending, fulfilled, rejected. Use .then(), .catch(), .finally() or async/await.', example:'const p = new Promise((resolve, reject) =\u003e {\n  setTimeout(() =\u003e resolve("done"), 1000);\n});' },
+    setTimeout:   { kind:'js', badge:'JS', desc:'Executes a callback function after a specified delay in milliseconds. Returns a timer ID usable with clearTimeout().', example:'const id = setTimeout(() =\u003e {\n  console.log("Delayed!");\n}, 1000);' },
+    setInterval:  { kind:'js', badge:'JS', desc:'Repeatedly executes a callback at a fixed interval in ms. Returns an interval ID. Stop it with clearInterval(id).', example:'const id = setInterval(() =\u003e {\n  updateClock();\n}, 1000);\n// later: clearInterval(id);' },
+    clearTimeout: { kind:'js', badge:'JS', desc:'Cancels a timeout previously created with setTimeout(). Pass the timer ID returned by setTimeout.', example:'const id = setTimeout(fn, 2000);\nclearTimeout(id); // cancelled' },
+    clearInterval:{ kind:'js', badge:'JS', desc:'Stops a repeating interval created with setInterval(). Pass the interval ID returned by setInterval.', example:'const id = setInterval(tick, 1000);\nclearInterval(id); // stopped' },
+    JSON:         { kind:'js', badge:'JS', desc:'Built-in object for JSON serialization. JSON.stringify() converts JS to JSON string; JSON.parse() parses JSON back to JS.', example:'const str = JSON.stringify(data, null, 2);\nconst obj = JSON.parse(jsonString);' },
+    Math:         { kind:'js', badge:'JS', desc:'Built-in math utility object. Key methods: Math.random(), Math.floor(), Math.ceil(), Math.round(), Math.max(), Math.min(), Math.abs(), Math.sqrt().', example:'Math.random()         // 0..1\nMath.floor(4.9)       // 4\nMath.max(1, 2, 3)     // 3' },
+    Array:        { kind:'js', badge:'JS', desc:'Built-in array constructor and namespace. Key static methods: Array.from(), Array.isArray(). Prototype methods: map, filter, reduce, forEach, find, includes.', example:'Array.from({ length: 5 }, (_, i) =\u003e i);\n// [0, 1, 2, 3, 4]' },
+    Object:       { kind:'js', badge:'JS', desc:'Base object class and namespace. Key static methods: Object.keys(), Object.values(), Object.entries(), Object.assign(), Object.freeze().', example:'Object.keys({ a: 1, b: 2 })  // ["a","b"]\nObject.assign(target, src);' },
+    localStorage: { kind:'js', badge:'JS', desc:'Browser key-value storage that persists across sessions. setItem, getItem, removeItem, clear. Synchronous, limited to ~5MB. Strings only.', example:"localStorage.setItem('key', JSON.stringify(data));\nconst val = JSON.parse(localStorage.getItem('key'));" },
+    requestAnimationFrame: { kind:'js', badge:'JS', desc:'Schedules a callback before the browser\'s next repaint. The most efficient way to run JS animations — synced to display refresh rate.', example:'function animate() {\n  update();\n  requestAnimationFrame(animate);\n}\nrequestAnimationFrame(animate);' },
+    map:          { kind:'js', badge:'JS', desc:'Array method that creates a new array by applying a function to every element. Does not mutate the original array.', example:'const doubled = [1,2,3].map(n =\u003e n * 2);\n// [2, 4, 6]' },
+    filter:       { kind:'js', badge:'JS', desc:'Array method that returns a new array containing only elements for which the callback returns true.', example:'const evens = [1,2,3,4].filter(n =\u003e n % 2 === 0);\n// [2, 4]' },
+    reduce:       { kind:'js', badge:'JS', desc:'Array method that accumulates array values into a single result. Takes callback(accumulator, currentValue) and an initial value.', example:'const sum = [1,2,3,4].reduce((acc, n) =\u003e acc + n, 0);\n// 10' },
+    forEach:      { kind:'js', badge:'JS', desc:'Array method that executes a callback for each element. Unlike map, it returns undefined. Use for side effects.', example:'items.forEach((item, index) =\u003e {\n  console.log(index, item);\n});' },
+    find:         { kind:'js', badge:'JS', desc:'Returns the first array element for which the callback returns true. Returns undefined if none found.', example:'const user = users.find(u =\u003e u.id === 42);\n// { id: 42, name: "Alex" }' },
+    includes:     { kind:'js', badge:'JS', desc:'Returns true if the array or string contains the given value. Uses strict equality (===). Works on strings too.', example:"[1,2,3].includes(2)  // true\n'hello'.includes('ell') // true" },
+    slice:        { kind:'js', badge:'JS', desc:'Returns a shallow copy of a portion of an array/string. Non-destructive. Accepts start and end (exclusive) indices. Negative indices count from end.', example:'[1,2,3,4,5].slice(1, 3)  // [2, 3]\n"hello".slice(0, 3)      // "hel"' },
+    splice:       { kind:'js', badge:'JS', desc:'Mutates an array by removing/replacing/inserting elements in place. Returns an array of removed elements.', example:'const arr = [1,2,3,4];\narr.splice(1, 2);   // removes 2,3 → arr=[1,4]\narr.splice(1, 0, "a"); // inserts "a"' },
+    push:         { kind:'js', badge:'JS', desc:'Appends one or more elements to the end of an array and returns the new length. Mutates the array in place.', example:'const arr = [1, 2];\narr.push(3, 4);\n// arr → [1, 2, 3, 4]' },
+    pop:          { kind:'js', badge:'JS', desc:'Removes and returns the last element of an array. Mutates the array. Returns undefined if array is empty.', example:'const arr = [1, 2, 3];\nconst last = arr.pop(); // 3\n// arr → [1, 2]' },
+    join:         { kind:'js', badge:'JS', desc:'Joins all array elements into a string, separated by the specified separator (default ",").', example:"[1,2,3].join('-')   // '1-2-3'\n['a','b'].join('')  // 'ab'" },
+    split:        { kind:'js', badge:'JS', desc:'Splits a string into an array by a separator. An empty string "" splits into individual characters.', example:"'a,b,c'.split(',')   // ['a','b','c']\n'hello'.split('')    // ['h','e','l','l','o']" },
+    replace:      { kind:'js', badge:'JS', desc:'Returns a new string with matched content replaced. Accepts a string or regex as the first argument. Use replaceAll or /g flag for global replace.', example:"'hello world'.replace('world', 'JS');\n'aabbcc'.replace(/b/g, 'X');" },
+    trim:         { kind:'js', badge:'JS', desc:'Removes whitespace from both ends of a string. trimStart() and trimEnd() trim individual sides. Does not modify the original.', example:"'  hello  '.trim()  // 'hello'" },
+    parseInt:     { kind:'js', badge:'JS', desc:'Parses a string and returns an integer. Always specify the radix (base): 10 for decimal. Returns NaN if parsing fails.', example:"parseInt('42', 10)     // 42\nparseInt('0xFF', 16)  // 255" },
+    parseFloat:   { kind:'js', badge:'JS', desc:'Parses a string and returns a floating-point number. Stops at the first invalid character. Returns NaN on failure.', example:"parseFloat('3.14abc')  // 3.14\nparseFloat('xyz')      // NaN" },
+  };
+
+  /* Normalize CSS/JS camelCase → hyphen-case lookups */
+  function normalize(word) {
+    // Try exact match first
+    if (KB[word]) return word;
+    // camelCase → try as-is (our KB already has camelCase keys)
+    // Also try lowercase
+    if (KB[word.toLowerCase()]) return word.toLowerCase();
+    return null;
+  }
+
+  /* ── Tooltip DOM updater ── */
+  function showTooltip(entry, keyword, x, y) {
+    if (!enabled || !entry) return;
+
+    ttBadge.textContent  = entry.badge;
+    ttBadge.className    = 'tooltip-kind-badge ' + entry.kind;
+    ttKeyword.textContent = keyword;
+    ttDesc.textContent   = entry.desc;
+
+    if (entry.example) {
+      ttExample.textContent = entry.example;
+      ttExWrap.style.display = 'block';
+    } else {
+      ttExWrap.style.display = 'none';
+    }
+
+    /* Position tooltip: prefer above cursor, fall back to below */
+    tooltip.style.left = '-9999px';
+    tooltip.style.top  = '-9999px';
+    tooltip.classList.add('visible');
+
+    requestAnimationFrame(() => {
+      const tw = tooltip.offsetWidth;
+      const th = tooltip.offsetHeight;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const GAP = 14;
+
+      let left = x - tw / 2;
+      let top  = y - th - GAP;
+
+      // Keep within viewport
+      if (left < 8) left = 8;
+      if (left + tw > vw - 8) left = vw - tw - 8;
+      if (top < 8) top = y + GAP + 16; // flip to below cursor
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top  = top  + 'px';
+    });
+  }
+
+  function hideTooltip(instant) {
+    if (instant) {
+      tooltip.classList.remove('visible');
+    } else {
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => tooltip.classList.remove('visible'), 120);
+    }
+  }
+
+  /* ── Get word around cursor position in a textarea ── */
+  function getWordAtCursor(ta) {
+    const val   = ta.value;
+    const pos   = ta.selectionStart;
+    if (pos === null) return null;
+
+    // Walk left to find word start
+    let start = pos;
+    while (start > 0 && /[\w\-]/.test(val[start - 1])) start--;
+    // Walk right to find word end
+    let end = pos;
+    while (end < val.length && /[\w\-]/.test(val[end])) end++;
+
+    if (end === start) return null;
+    const word = val.slice(start, end);
+    if (word.length < 2) return null;
+    return word;
+  }
+
+  /* ── Get selected text in a textarea ── */
+  function getSelectedWord(ta) {
+    const start = ta.selectionStart;
+    const end   = ta.selectionEnd;
+    if (start === end) return null;
+    const sel = ta.value.slice(start, end).trim();
+    if (sel.length < 2 || sel.includes('\n')) return null;
+    return sel;
+  }
+
+  /* ── Compute approximate caret pixel coordinates ── */
+  function getCaretCoords(ta) {
+    // Create a mirror div to measure text dimensions
+    const mirror = document.createElement('div');
+    const style  = window.getComputedStyle(ta);
+    const props  = [
+      'fontFamily','fontSize','fontWeight','letterSpacing','lineHeight',
+      'paddingTop','paddingLeft','paddingRight','paddingBottom',
+      'borderTopWidth','borderLeftWidth','width','boxSizing','tabSize'
+    ];
+    props.forEach(p => { mirror.style[p] = style[p]; });
+    mirror.style.cssText += ';position:absolute;visibility:hidden;overflow:hidden;white-space:pre-wrap;word-break:break-word;pointer-events:none;';
+    if (ta.wrap === 'off') mirror.style.whiteSpace = 'pre';
+
+    const caretPos = ta.selectionStart;
+    const before   = document.createTextNode(ta.value.slice(0, caretPos));
+    const marker   = document.createElement('span');
+    marker.textContent = '|';
+    mirror.appendChild(before);
+    mirror.appendChild(marker);
+
+    document.body.appendChild(mirror);
+
+    const taRect     = ta.getBoundingClientRect();
+    const mirrorRect = mirror.getBoundingClientRect();
+    const markerRect = marker.getBoundingClientRect();
+
+    document.body.removeChild(mirror);
+
+    // Offset by textarea's scroll and position
+    const x = taRect.left + (markerRect.left - mirrorRect.left) - ta.scrollLeft;
+    const y = taRect.top  + (markerRect.top  - mirrorRect.top)  - ta.scrollTop;
+
+    return { x: Math.max(taRect.left, Math.min(x, taRect.right)),
+             y: Math.max(taRect.top,  Math.min(y, taRect.bottom)) };
+  }
+
+  /* ── Debounced handler ── */
+  let lookupTimer = null;
+  function scheduleLookup(ta, eventType) {
+    clearTimeout(lookupTimer);
+    lookupTimer = setTimeout(() => {
+      if (!enabled) return;
+      const word = eventType === 'select'
+        ? getSelectedWord(ta)
+        : getWordAtCursor(ta);
+      if (!word) { hideTooltip(false); return; }
+      const key   = normalize(word);
+      const entry = key ? KB[key] : null;
+      if (!entry) { hideTooltip(false); return; }
+      if (word === currentWord) return;
+      currentWord = word;
+      const coords = getCaretCoords(ta);
+      showTooltip(entry, word, coords.x, coords.y);
+    }, eventType === 'select' ? 200 : 400);
+  }
+
+  /* ── Attach listeners to all editor textareas ── */
+  function attachToTextarea(ta) {
+    ta.addEventListener('keyup',         () => scheduleLookup(ta, 'keyup'));
+    ta.addEventListener('click',         () => scheduleLookup(ta, 'click'));
+    ta.addEventListener('select',        () => scheduleLookup(ta, 'select'));
+    ta.addEventListener('mouseup',       () => scheduleLookup(ta, 'select'));
+    ta.addEventListener('keydown',       () => { currentWord = ''; hideTooltip(false); });
+    ta.addEventListener('blur',          () => hideTooltip(false));
+    ta.addEventListener('scroll',        () => hideTooltip(true));
+  }
+
+  /* Attach to all textareas */
+  [
+    'ref-textarea', 'typing-area',       // Practice Editor
+    'fm-ref-textarea', 'fm-typing-area', // Fill Mode
+    'cp-html', 'cp-css', 'cp-js',        // Code Preview
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) attachToTextarea(el);
+  });
+
+  /* Hide tooltip when clicking outside any editor */
+  document.addEventListener('mousedown', e => {
+    if (!e.target.matches('textarea')) { hideTooltip(false); }
+  });
+
+})(); // end intellisenseModule
 </script>
 </body>
 </html>
